@@ -1,15 +1,11 @@
-# Examina de manera sistemática los efectos de la dimensión en el número de veces que la caminata regresa al origen durante una caminata del movimiento Browniano.
-#Verificar que el número de pasos de la caminata o el número de repeticiones del experimento no estén causando un efecto significativo.
-#Estudiar de forma sistemática y automatizada el tiempo de ejecución de una caminata en términos del largo de la caminata y la dimensión.
-#Realizar una comparación entre una implementación paralela y otra versión que no aproveche paralelismo.
-
 library(parallel)
 
 dimensions <- 8
 repetitions <- 1000
-steps <- 500
+steps <- 1000
 
 timesReturnedData <- data.frame()
+elapsedParallelData <- data.frame()
 elapsedData <- data.frame()
 
 experiment <- function(r){
@@ -31,30 +27,25 @@ experiment <- function(r){
     distanceToOrigin <- sum(abs(position - origin))
     stepsLeft <- steps - step
 
-    #if(distanceToOrigin > stepsLeft){
-    #  break
-    #}
+    if(distanceToOrigin > stepsLeft){
+      break
+    }
   }
   return(timesReturned)
 }
 
 cluster <- makeCluster(detectCores() - 1)
 clusterExport(cluster, "steps")
-
-experimentTime = NULL
-maxDimension = NULL
+maxDimension <- NULL
 for (dimension in 1:dimensions) {
   clusterExport(cluster, "dimension")
-  experimentTime <- c(
-    experimentTime,
-    system.time(result <- parSapply(cluster, 1:repetitions, experiment))[3]
-    )
+  result <- parSapply(cluster, 1:repetitions, experiment)
   timesReturnedData <- rbind(timesReturnedData, result)
-  elapsedData <- rbind(elapsedData, experimentTime)
+
   if(mean(result) < 0.5){
-    maxDimension = dimension
-    alert <- paste("En ", dimension, "dimensiones, la media (", mean(result), ") es inferior a 0.5, por lo que se descarta el regreso en m\u00E1s dimensiones.")
-    print(paste(alert))
+    maxDimension <- dimension
+    alert <- paste("INFO: En ", dimension, "dimensiones, la media de regresos al origen (", mean(result), ") es inferior a 0.5, por lo que se descarta el regreso en m\u00E1s dimensiones.")
+    print(alert)
     break
   }
 }
@@ -64,22 +55,32 @@ png("TimesReturned_Dimension.png")
 boxplot(data.matrix(timesReturnedData), use.cols=FALSE,
 xlab="Dimensi\u{F3}n", ylab="Retornos al origen", main="Retornos")
 graphics.off()
+print("INFO: Imagen de Retornos al origen generada.")
 
 cluster <- makeCluster(detectCores() - 1)
 dimension <- maxDimension
 clusterExport(cluster, "dimension")
-experimentTime = NULL
+experimentTime <- NULL
 totalSteps <- steps
-for (steps in seq(1, totalSteps, 10)) {
+for (steps in seq(100, totalSteps, 100)) {
   clusterExport(cluster, "steps")
-  experimentTime <- c(
-    experimentTime,
-    system.time(result <- parSapply(cluster, 1:repetitions, experiment))[3]
-    )
-  elapsedData <- rbind(elapsedData, experimentTime)
+  experimentTime <- system.time(parSapply(cluster, 1:repetitions, experiment))[3]
+  elapsedParallelData <- rbind(elapsedParallelData, experimentTime)
 }
 stopCluster(cluster)
 
-png("ElapsedTime_Experiment.png")
-plot(data.matrix(elapsedData), xlab="Dimensi\u{F3}n", ylab="Tiempo", main="Tiempo ejecuci\u{F3}")
+png("ParallelElapsedTime_Experiment.png")
+plot(data.matrix(elapsedParallelData), type="l", xlab="Pasos en cientos", ylab="Tiempo", main="Tiempo ejecuci\u{F3}n en paralelo")
 graphics.off()
+print("INFO: Imagen de Tiempo ejecuci\u{F3}n en paralelo generada.")
+
+experimentTime <- NULL
+for (steps in seq(100, totalSteps, 100)) {
+  experimentTime <- system.time(sapply(1:repetitions, experiment))[3]
+  elapsedData <- rbind(elapsedData, experimentTime)
+}
+
+png("ElapsedTime_Experiment.png")
+plot(data.matrix(elapsedData), type="l", xlab="Pasos en cientos", ylab="Tiempo", main="Tiempo ejecuci\u{F3}n no paralelo")
+graphics.off()
+print("INFO: Imagen de Tiempo ejecuci\u{F3}n no paralelo generada")
