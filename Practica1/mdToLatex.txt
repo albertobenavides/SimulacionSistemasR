@@ -1,0 +1,1 @@
+pandoc -f markdown -o my.pdf test.md -V papersize=letter -V documentclass=article -V toc
