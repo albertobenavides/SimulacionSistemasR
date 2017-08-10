@@ -10,7 +10,7 @@ repetitions <- 1000
 steps <- 500
 
 timesReturnedData <- data.frame()
-elasedTimeData <- data.frame()
+elapsedData <- data.frame()
 
 experiment <- function(r){
   position <- rep(0, dimension)
@@ -31,9 +31,9 @@ experiment <- function(r){
     distanceToOrigin <- sum(abs(position - origin))
     stepsLeft <- steps - step
 
-    if(distanceToOrigin > stepsLeft){
-      break
-    }
+    #if(distanceToOrigin > stepsLeft){
+    #  break
+    #}
   }
   return(timesReturned)
 }
@@ -42,6 +42,7 @@ cluster <- makeCluster(detectCores() - 1)
 clusterExport(cluster, "steps")
 
 experimentTime = NULL
+maxDimension = NULL
 for (dimension in 1:dimensions) {
   clusterExport(cluster, "dimension")
   experimentTime <- c(
@@ -49,11 +50,36 @@ for (dimension in 1:dimensions) {
     system.time(result <- parSapply(cluster, 1:repetitions, experiment))[3]
     )
   timesReturnedData <- rbind(timesReturnedData, result)
+  elapsedData <- rbind(elapsedData, experimentTime)
+  if(mean(result) < 0.5){
+    maxDimension = dimension
+    alert <- paste("En ", dimension, "dimensiones, la media (", mean(result), ") es inferior a 0.5, por lo que se descarta el regreso en m\u00E1s dimensiones.")
+    print(paste(alert))
+    break
+  }
 }
-timesReturnedData <- cbind(timesReturnedData, experimentTime)
 stopCluster(cluster)
 
 png("TimesReturned_Dimension.png")
 boxplot(data.matrix(timesReturnedData), use.cols=FALSE,
-xlab="Dimensi\u{F3}n", ylab="Retornos al origen", main="Retornos al origen por dimensi\u{F3}n")
+xlab="Dimensi\u{F3}n", ylab="Retornos al origen", main="Retornos")
+graphics.off()
+
+cluster <- makeCluster(detectCores() - 1)
+dimension <- maxDimension
+clusterExport(cluster, "dimension")
+experimentTime = NULL
+totalSteps <- steps
+for (steps in seq(1, totalSteps, 10)) {
+  clusterExport(cluster, "steps")
+  experimentTime <- c(
+    experimentTime,
+    system.time(result <- parSapply(cluster, 1:repetitions, experiment))[3]
+    )
+  elapsedData <- rbind(elapsedData, experimentTime)
+}
+stopCluster(cluster)
+
+png("ElapsedTime_Experiment.png")
+plot(data.matrix(elapsedData), xlab="Dimensi\u{F3}n", ylab="Tiempo", main="Tiempo ejecuci\u{F3}")
 graphics.off()
