@@ -6,10 +6,11 @@
 library(parallel)
 
 dimensions <- 8
-repetitions <- 100
-steps <- 1000
+repetitions <- 1000
+steps <- 500
 
-output <- data.frame()
+timesReturnedData <- data.frame()
+elasedTimeData <- data.frame()
 
 experiment <- function(r){
   position <- rep(0, dimension)
@@ -40,14 +41,19 @@ experiment <- function(r){
 cluster <- makeCluster(detectCores() - 1)
 clusterExport(cluster, "steps")
 
+experimentTime = NULL
 for (dimension in 1:dimensions) {
   clusterExport(cluster, "dimension")
-  result <- parSapply(cluster, 1:repetitions, experiment)
-  output <- rbind(output, result)
+  experimentTime <- c(
+    experimentTime,
+    system.time(result <- parSapply(cluster, 1:repetitions, experiment))[3]
+    )
+  timesReturnedData <- rbind(timesReturnedData, result)
 }
+timesReturnedData <- cbind(timesReturnedData, experimentTime)
 stopCluster(cluster)
 
-png("p1.png")
-boxplot(data.matrix(output), use.cols=FALSE,
+png("TimesReturned_Dimension.png")
+boxplot(data.matrix(timesReturnedData), use.cols=FALSE,
 xlab="Dimensi\u{F3}n", ylab="Retornos al origen", main="Retornos al origen por dimensi\u{F3}n")
 graphics.off()
