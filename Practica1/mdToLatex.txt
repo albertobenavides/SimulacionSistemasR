@@ -1,1 +1,1 @@
-pandoc -f markdown -o my.pdf test.md -V papersize=letter -V documentclass=article -V toc
+pandoc -f markdown -o reporte.pdf reporte.md -V papersize=letter -V documentclass=article

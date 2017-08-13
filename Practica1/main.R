@@ -44,43 +44,46 @@ for (dimension in 1:dimensions) {
 
   if(mean(result) < 0.5){
     maxDimension <- dimension
-    alert <- paste("INFO: En ", dimension, "dimensiones, la media de regresos al origen (", mean(result), ") es inferior a 0.5, por lo que se descarta el regreso en m\u00E1s dimensiones.")
+    alert <- paste("INFO: En", dimension,
+    "dimensiones, la media de regresos al origen (",
+    mean(result),
+    ") es inferior a 0.5, por lo que se descarta el regreso",
+    "en m\u00E1s dimensiones.")
     print(alert)
     break
+  } else{
+    alert <- paste("INFO: Media de dimensi\u{F3}n", dimension, ":", mean(result), ".")
+    print(alert)
   }
 }
 stopCluster(cluster)
 
 png("TimesReturned_Dimension.png")
 boxplot(data.matrix(timesReturnedData), use.cols=FALSE,
-xlab="Dimensi\u{F3}n", ylab="Retornos al origen", main="Retornos")
+xlab="Dimensi\u{F3}n", ylab="Retornos al origen")
 graphics.off()
 print("INFO: Imagen de Retornos al origen generada.")
 
 cluster <- makeCluster(detectCores() - 1)
 dimension <- maxDimension
 clusterExport(cluster, "dimension")
+parallelExperimentTime <- NULL
 experimentTime <- NULL
 totalSteps <- steps
 for (steps in seq(100, totalSteps, 100)) {
+  experimentTime <- system.time(sapply(1:repetitions, experiment))[3]
+  elapsedData <- rbind(elapsedData, experimentTime)
+
   clusterExport(cluster, "steps")
-  experimentTime <- system.time(parSapply(cluster, 1:repetitions, experiment))[3]
-  elapsedParallelData <- rbind(elapsedParallelData, experimentTime)
+  parallelExperimentTime <- system.time(
+    parSapply(cluster, 1:repetitions, experiment))[3]
+  elapsedParallelData <- rbind(elapsedParallelData, parallelExperimentTime)
 }
 stopCluster(cluster)
 
-png("ParallelElapsedTime_Experiment.png")
-plot(data.matrix(elapsedParallelData), type="l", xlab="Pasos en cientos", ylab="Tiempo", main="Tiempo ejecuci\u{F3}n en paralelo")
-graphics.off()
-print("INFO: Imagen de Tiempo ejecuci\u{F3}n en paralelo generada.")
-
-experimentTime <- NULL
-for (steps in seq(100, totalSteps, 100)) {
-  experimentTime <- system.time(sapply(1:repetitions, experiment))[3]
-  elapsedData <- rbind(elapsedData, experimentTime)
-}
-
 png("ElapsedTime_Experiment.png")
-plot(data.matrix(elapsedData), type="l", xlab="Pasos en cientos", ylab="Tiempo", main="Tiempo ejecuci\u{F3}n no paralelo")
+plot(data.matrix(elapsedData), xlab="Pasos", ylab="Tiempo")
+points(data.matrix(elapsedParallelData), pch=15)
+axis(1, at=seq(1, 10, 1), labels=seq(100, totalSteps, 100))
 graphics.off()
-print("INFO: Imagen de Tiempo ejecuci\u{F3}n no paralelo generada")
+print("INFO: Imagen de Tiempo ejecuci\u{F3}n generada.")
