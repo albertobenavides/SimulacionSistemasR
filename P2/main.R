@@ -1,8 +1,10 @@
 library(parallel)
+suppressMessages(library("sna"))
 unlink("*.png")
 dimension <- 100
 size <- dimension ^ 2
-suppressMessages(library("sna"))
+
+elapsedGenerations <- data.frame()
 
 experiment <- function(position){
   row <- floor((position - 1) / dimension) + 1
@@ -40,9 +42,15 @@ for (i in seq(0, 1, 0.1)) {
       plot.sociomatrix(current, diaglab = FALSE, main = elapsed, drawlab = FALSE)
       graphics.off()
     }
-    if(initial == sum(current)){ # evita repeticiones en grupos de 4
+    if(initial == sum(current)){ # evita repeticiones en grupos que intercambian sus posiciones
       break
     }
   }
+  elapsedGenerations <- rbind(elapsedGenerations, c(i, generation))
 }
+
+png("elapsedGenerations.png")
+plot(elapsedGenerations[,1], elapsedGenerations[,2], )
+axis(1, at = elapsedGenerations[,1])
+graphics.off()
 stopCluster(cluster)
