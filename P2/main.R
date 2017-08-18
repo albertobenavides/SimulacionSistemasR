@@ -22,26 +22,22 @@ for (i in seq(0, 1, 0.1)) {
   current <- matrix(runif(size), nrow = dimension, ncol = dimension)
   current <- (current < i) * 1
   generation <- 0
-  output = paste("p", i * 10, "g", generation, ".png", sep = "")
-  elapsed = paste("Porcentaje", i ,"Paso", generation)
-  if(sum(current) > 0 && sum(current) < size){
-    png(output)
-    plot.sociomatrix(current, diaglab = FALSE, main = elapsed, drawlab = FALSE)
-    graphics.off()
-  }
-  while(sum(current) > 1){
+
+  while(sum(current) > 0){
+    output = paste("p", i * 10, "g", sprintf("%02d", generation), ".png", sep = "")
+    elapsed = paste("Porcentaje", i ,"Paso", generation)
+    if(sum(current) < size){
+      png(output)
+      plot.sociomatrix(current, diaglab = FALSE, main = elapsed, drawlab = FALSE)
+      graphics.off()
+    }
+
     generation <- generation + 1
     initial <- sum(current)
     clusterExport(cluster, "current")
     nextMatrix <- parSapply(cluster, 1:size, experiment)
     current <- matrix(nextMatrix, nrow = dimension, ncol = dimension, byrow = TRUE)
-    output = paste("p", i * 10, "g", generation, ".png", sep = "")
-    elapsed = paste("Porcentaje", i ,"Paso", generation)
-    if(sum(current) > 0 && sum(current) < size){
-      png(output)
-      plot.sociomatrix(current, diaglab = FALSE, main = elapsed, drawlab = FALSE)
-      graphics.off()
-    }
+
     if(initial == sum(current)){ # evita repeticiones en grupos que intercambian sus posiciones
       break
     }
@@ -50,7 +46,7 @@ for (i in seq(0, 1, 0.1)) {
 }
 
 png("elapsedGenerations.png")
-plot(elapsedGenerations[,1], elapsedGenerations[,2], )
+plot(elapsedGenerations[,1], elapsedGenerations[,2], xlab = "Probabilidad inicial de celda viva", ylab = "Iteraciones")
 axis(1, at = elapsedGenerations[,1])
 graphics.off()
 stopCluster(cluster)
