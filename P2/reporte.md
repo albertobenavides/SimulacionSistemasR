@@ -42,6 +42,8 @@ En ella se ve que, bajo las condiciones definidas para estos autómatas, tienen 
 
 ## Objetivo 2
 
+
+
 # Apéndice
 
 ## Código del Objetivo 1
