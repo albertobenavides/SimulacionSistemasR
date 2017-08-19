@@ -1,6 +1,6 @@
 library(parallel)
 suppressMessages(library("sna"))
-unlink("challengeG*.png")
+unlink("img/g*.png")
 dimension <- 100
 size <- dimension ^ 2
 seeds <- 20
@@ -38,7 +38,7 @@ clusterExport(cluster, "dimension")
 generation <- 0
 while (any(current == 0)) {
   clusterExport(cluster, "current")
-  output = paste("challengeG", sprintf("%03d", generation), ".png", sep = "")
+  output = paste("img/g", sprintf("%02d", generation), ".png", sep = "")
   elapsed = paste("Paso", generation)
   png(output)
   plot.sociomatrix(current, diaglab = FALSE, main = elapsed, drawlab = FALSE)
@@ -48,7 +48,8 @@ while (any(current == 0)) {
   current <- matrix(nextMatrix, nrow = dimension, ncol = dimension, byrow = TRUE)
   generation <- generation + 1
 }
-output = paste("challengeG", sprintf("%03d", generation), ".png", sep = "")
+current[1] = 0
+output = paste("img/g", sprintf("%02d", generation), ".png", sep = "")
 elapsed = paste("Paso", generation)
 png(output)
 plot.sociomatrix(current, diaglab = FALSE, main = elapsed, drawlab = FALSE)
@@ -70,7 +71,7 @@ b <- unique(b)
 noBorders <- current[! current %in% b]
 
 png("noBorders.png")
-hist(noBorders)
+hist(noBorders, main = NULL, xlab = "Semilla", ylab = "Frecuencia")
 graphics.off()
 
 stopCluster(cluster)

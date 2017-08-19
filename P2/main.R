@@ -1,6 +1,6 @@
 library(parallel)
 suppressMessages(library("sna"))
-unlink("*.png")
+unlink("img/p*.png")
 dimension <- 100
 size <- dimension ^ 2
 
@@ -24,7 +24,7 @@ for (i in seq(0, 1, 0.1)) {
   generation <- 0
 
   while(sum(current) > 0){
-    output = paste("p", i * 10, "g", sprintf("%02d", generation), ".png", sep = "")
+    output = paste("img/p", i * 10, "g", sprintf("%02d", generation), ".png", sep = "")
     elapsed = paste("Porcentaje", i ,"Paso", generation)
     if(sum(current) < size){
       png(output)
