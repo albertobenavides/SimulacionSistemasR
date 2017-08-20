@@ -4,12 +4,14 @@ unlink("img/g*.png")
 dimension <- 100
 size <- dimension ^ 2
 seeds <- 20
-seedsPosition <- sample(1:size, seeds)
-current <- matrix(0, nrow = dimension, ncol = dimension)
+noBordersCount <- vector(mode="numeric", length=0)
+seedArea <- data.frame()
 
-for (seed in 1:seeds) {
-  current[seedsPosition[seed]] = seed / seeds
-}
+border <- c(1:dimension,
+  (size - dimension + 1):size,
+  seq(dimension + 1, size - 2 * dimension + 1, dimension),
+  seq(2 * dimension, size - dimension, dimension)
+)
 
 experiment <- function(position){
   row <- floor((position - 1) / dimension) + 1
@@ -35,43 +37,62 @@ experiment <- function(position){
 
 cluster <- makeCluster(detectCores() - 1)
 clusterExport(cluster, "dimension")
-generation <- 0
-while (any(current == 0)) {
-  clusterExport(cluster, "current")
-  output = paste("img/g", sprintf("%02d", generation), ".png", sep = "")
-  elapsed = paste("Paso", generation)
-  png(output)
-  plot.sociomatrix(current, diaglab = FALSE, main = elapsed, drawlab = FALSE)
-  graphics.off()
 
-  nextMatrix <- parSapply(cluster, 1:size, experiment)
-  current <- matrix(nextMatrix, nrow = dimension, ncol = dimension, byrow = TRUE)
-  generation <- generation + 1
+for (i in 1:10) {
+  current <- matrix(0, nrow = dimension, ncol = dimension)
+  seedsPosition <- sample(1:size, seeds)
+  for (seed in 1:seeds) {
+    current[seedsPosition[seed]] = seed / seeds
+  }
+
+  generation <- 0
+
+  while (any(current == 0)) {
+    clusterExport(cluster, "current")
+    if(i == 1){
+      output = paste("img/g", sprintf("%02d", generation), ".png", sep = "")
+      elapsed = paste("Paso", generation)
+      png(output)
+      plot.sociomatrix(current, diaglab = FALSE, main = elapsed, drawlab = FALSE)
+      graphics.off()
+    }
+
+    nextMatrix <- parSapply(cluster, 1:size, experiment)
+    current <- matrix(nextMatrix, nrow = dimension, ncol = dimension, byrow = TRUE)
+    generation <- generation + 1
+  }
+
+  d <- density(current) # returns the density data
+
+  seedArea <- rbind(seedArea, as.vector(table(current)))
+
+  if(i == 1){
+    current[1] = 0
+    output = paste("img/g", sprintf("%02d", generation), ".png", sep = "")
+    elapsed = paste("Paso", generation)
+    png(output)
+    plot.sociomatrix(current, diaglab = FALSE, main = elapsed, drawlab = FALSE)
+    graphics.off()
+  }
+
+  borderValues <- 0
+  for (i in border) {
+    borderValues <- c(borderValues, current[i])
+  }
+
+  borderValues <- unique(borderValues)
+
+  noBorders <- current[! current %in% borderValues]
+
+  noBordersCount <- c(noBordersCount, (length(noBorders) / size))
 }
-current[1] = 0
-output = paste("img/g", sprintf("%02d", generation), ".png", sep = "")
-elapsed = paste("Paso", generation)
-png(output)
-plot.sociomatrix(current, diaglab = FALSE, main = elapsed, drawlab = FALSE)
+
+png("seedArea.png")
+boxplot(data.matrix(seedArea), xlab = "Semilla", ylab = "Frecuencia", main = NULL, use.cols=FALSE)
 graphics.off()
 
-border <- c(1:dimension,
-  (size - dimension + 1):size,
-  seq(dimension + 1, size - 2 * dimension + 1, dimension),
-  seq(2 * dimension, size - dimension, dimension)
-)
-
-borderValues <- 0
-for (i in border) {
-  borderValues <- c(borderValues, current[i])
-}
-
-borderValues <- unique(b)
-
-noBorders <- current[! current %in% borderValues]
-
 png("noBorders.png")
-hist(noBorders, main = NULL, xlab = "Semilla", ylab = "Frecuencia")
+boxplot(noBordersCount, main = NULL, xlab = "Semilla", ylab = "Extensi\u{F3}n")
 graphics.off()
 
 stopCluster(cluster)

@@ -40,7 +40,7 @@ El resto de probabilidades corren suertes similares, en términos del cambio de 
 
 ![Generaciones de sobrevivencia por probabilidad inicial de celda viva.](elapsedGenerations.png)
 
-En ella se ve que, bajo las condiciones definidas para estos autómatas, tienen mayor índice de supervivencia aquellos que inician con probabilidades entre $0.3$ y $0.6$.
+En ella se ve que, bajo las condiciones definidas para estos autómatas, tienen mayor índice de supervivencia aquellos que inician con probabilidades entre $0.2$ y $0.6$.
 
 ## Objetivo 2
 
@@ -94,6 +94,8 @@ Finalmente se eliminan de `current` todos esos valores presentes en los bordes m
 De las $20$ semillas iniciales, $9$ no llegaron al borde y representan aproximadamente un 40% del espacio total de la matriz.
 
 ## Objetivo 3
+
+
 
 \newpage
 # Apéndice
