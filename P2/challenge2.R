@@ -73,5 +73,5 @@ for (i in 1:10) {
 stopCluster(cluster)
 
 png("seedAreaGrow.png")
-boxplot(data.matrix(seedArea), xlab = "Semilla", ylab = "Frecuencia", main = NULL, use.cols=FALSE)
+boxplot(data.matrix(seedArea), xlab = "Semilla", ylab = "Frecuencia", main = NULL, use.cols=FALSE, ylim = c(0, 1500))
 graphics.off()
