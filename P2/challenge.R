@@ -61,14 +61,14 @@ border <- c(1:dimension,
   seq(2 * dimension, size - dimension, dimension)
 )
 
-b <- 0
+borderValues <- 0
 for (i in border) {
-  b <- c(b, current[i])
+  borderValues <- c(borderValues, current[i])
 }
 
-b <- unique(b)
+borderValues <- unique(b)
 
-noBorders <- current[! current %in% b]
+noBorders <- current[! current %in% borderValues]
 
 png("noBorders.png")
 hist(noBorders, main = NULL, xlab = "Semilla", ylab = "Frecuencia")
