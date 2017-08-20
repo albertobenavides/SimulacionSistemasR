@@ -62,8 +62,6 @@ for (i in 1:10) {
     generation <- generation + 1
   }
 
-  d <- density(current) # returns the density data
-
   seedArea <- rbind(seedArea, as.vector(table(current)))
 
   if(i == 1){
