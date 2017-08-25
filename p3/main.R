@@ -6,11 +6,12 @@ to <-  3000
 original <- from:to
 reversed <- to:from
 samples <- 10
-cores <- detectCores()
 times <- data.frame()
+cores <- detectCores()
 
 for (core in 1:cores) {
-  registerDoParallel(makeCluster(core))
+  cluster <- makeCluster(core)
+  registerDoParallel(cluster)
   originalTime <-  numeric()
   reversedTime <-  numeric()
   randomTime <-  numeric()
@@ -29,6 +30,7 @@ for (core in 1:cores) {
       )
   }
   stopImplicitCluster()
+  stopCluster(cluster)
 
   times <- rbind(times, c(originalTime, core))
   times <- rbind(times, c(reversedTime, core))
@@ -36,8 +38,8 @@ for (core in 1:cores) {
 }
 
 times[, "mean"] <- apply(times[, 1:10], 1, mean)
-
 png("MeanTime_Cluster.png")
+
 plot(
   times[, 12],
   xlab = "ClusterArreglo",
