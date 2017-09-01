@@ -47,7 +47,7 @@ MakeCrack <- function(r) {
       isCracking = FALSE
     }
   }
-  if(crackLength >= 64) {
+  if(crackLength >= dimension - seeds) {
     png(paste("Crack", r, ".png", sep=""))
     par(mar = c(0,0,0,0))
     image(Rotate(voronoiCracked), col=c(colors()[24], rainbow(seeds + 1)))
