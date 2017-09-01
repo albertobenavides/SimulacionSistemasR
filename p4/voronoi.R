@@ -1,9 +1,9 @@
-voronoi <- function(n) {
-  if(voronoiMaterial[n] > 0) {
-    return(voronoiMaterial[n])
+Voronoi <- function(r) {
+  if(voronoiMaterial[r] > 0) {
+    return(voronoiMaterial[r])
   } else {
-    x <- floor((n - 1) / dimension) + 1
-    y <- ((n - 1) %% dimension) + 1
+    y <- floor((r - 1) / dimension) + 1
+    x <- ((r - 1) %% dimension) + 1
     minDistance <- size
     selectedSeed <- NULL
     for (i in 1:seeds) {
