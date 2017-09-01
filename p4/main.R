@@ -4,10 +4,10 @@ source("makeCrack.R")
 source("rotate.R")
 unlink("C*.png")
 
-dimension <- 256
+dimension <- 512
 size <- dimension * dimension
 voronoiMaterial <- matrix(rep(0, size), ncol = dimension, nrow = dimension)
-seeds <- 192
+seeds <- 500
 seedPositions <- sample(1 : size, seeds)
 
 for (i in 1:seeds) {
@@ -16,7 +16,7 @@ for (i in 1:seeds) {
 
 png("VoronoiInitial.png")
 par(mar = c(0,0,0,0))
-image(Rotate(voronoiMaterial), col=rainbow(seeds + 1))
+image(Rotate(voronoiMaterial), col=c(colors()[24], terrain.colors(seeds + 1)))
 graphics.off()
 
 cores <- detectCores()
@@ -31,7 +31,7 @@ voronoiMaterial <- matrix(nextMatrix, nrow = dimension, ncol = dimension, byrow 
 voronoiMaterial[1] <- 0
 png("VoronoiFinal.png")
 par(mar = c(0,0,0,0))
-image(Rotate(voronoiMaterial), col=rainbow(seeds + 1))
+image(Rotate(voronoiMaterial), col=c(colors()[24], terrain.colors(seeds + 1)))
 graphics.off()
 
 StartCrack <- function() {

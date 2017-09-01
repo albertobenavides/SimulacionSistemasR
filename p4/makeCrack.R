@@ -47,10 +47,12 @@ MakeCrack <- function(r) {
       isCracking = FALSE
     }
   }
-  if(crackLength >= dimension - seeds) {
+
+  f <- list.files(path = ".", pattern="Crack*")
+  if(crackLength >= 50 & length(f) <= 5) {
     png(paste("Crack", r, ".png", sep=""))
     par(mar = c(0,0,0,0))
-    image(Rotate(voronoiCracked), col=c(colors()[24], rainbow(seeds + 1)))
+    image(Rotate(voronoiCracked), col=c(colors()[24], terrain.colors(seeds + 1)))
     graphics.off()
   }
 
