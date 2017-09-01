@@ -179,15 +179,15 @@ for (i in 0 : 3) {
   axis(1, at=1:3, labels = totalLengths[(1 + 3 * i) : (3 + 3 * i), 2])
   graphics.off()
 
-  print(paste("Dimension", dTemp))
+  print(paste("Anova entre semillas d =", dTemp))
   s1 <- c(t(totalLengths[(1 + 3 * i), 3 : (repetitions + 2)]))
   s2 <- c(t(totalLengths[(2 + 3 * i), 3 : (repetitions + 2)]))
   s3 <- c(t(totalLengths[(3 + 3 * i), 3 : (repetitions + 2)]))
   dati <- data.frame(
-    Distancia = c(s1, s2, s3),
-    Semilla = factor(c(rep("a", repetitions), rep("b", repetitions), rep("c", repetitions)))
+    Length = c(s1, s2, s3),
+    Seed = factor(c(rep("a", repetitions), rep("b", repetitions), rep("c", repetitions)))
   )
-  datanova <- lm(dati$Distancia ~ dati$Semilla)
+  datanova <- lm(dati$Length ~ dati$Seed)
   print(anova(datanova))
 }
 
