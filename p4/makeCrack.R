@@ -8,7 +8,6 @@ MakeCrack <- function(r) {
   crackLength <- 0
 
   while(isCracking) {
-    voronoiCracked[yCrack, xCrack] = 0
     crackLength <- crackLength + 1
     interior <- numeric()
     border <- numeric()
@@ -18,6 +17,7 @@ MakeCrack <- function(r) {
       yNeighbor <- yCrack + neighbor$y
 
       if(xNeighbor > 0 & xNeighbor <= dimension & yNeighbor > 0 & yNeighbor <= dimension & xCrack > 0 & xCrack <= dimension & yCrack > 0 & yCrack <= dimension){
+        voronoiCracked[yCrack, xCrack] = 0
         if(voronoiCracked[yNeighbor, xNeighbor] > 0) {
           print(paste(yCrack, xCrack, "-", yNeighbor, xNeighbor))
           if (voronoiMaterial[yNeighbor, xNeighbor] == voronoiMaterial[yCrack, xCrack]) {
@@ -47,10 +47,10 @@ MakeCrack <- function(r) {
       isCracking = FALSE
     }
   }
-  if(crackLength >= 50) {
+  if(crackLength >= 64) {
     png(paste("Crack", r, ".png", sep=""))
     par(mar = c(0,0,0,0))
-    image(Rotate(voronoiCracked), col=rainbow(seeds + 1))
+    image(Rotate(voronoiCracked), col=c(colors()[24], rainbow(seeds + 1)))
     graphics.off()
   }
 

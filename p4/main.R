@@ -4,10 +4,10 @@ source("makeCrack.R")
 source("rotate.R")
 unlink("C*.png")
 
-dimension <- 256
+dimension <- 64
 size <- dimension * dimension
 voronoiMaterial <- matrix(rep(0, size), ncol = dimension, nrow = dimension)
-seeds <- 32
+seeds <- 56
 seedPositions <- sample(1 : size, seeds)
 
 for (i in 1:seeds) {
