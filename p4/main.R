@@ -162,21 +162,42 @@ repetitions <- 1000
 
 totalLengths <- data.frame()
 
-for (i in c(1, 2, 4, 8, 16)) {
+for (i in 0 : 3) {
   for (j in 1: 3) {
-    print(paste(i, j))
+    dTemp <- 16 * 2 ^ i
+    sTemp <- 16 * 2 ^ i * j / 4
+    print(paste(dTemp, sTemp))
     totalLengths <- rbind(
-      totalLengths, Experiment(16 * i, 16 * i * j / 4)
+      totalLengths, c(
+        dTemp,
+        sTemp,
+        Experiment(dTemp, sTemp)
+      )
     )
   }
+  png(paste("LengthsD", dTemp, ".png", sep = ""))
+  boxplot(data.matrix(totalLengths[(1 + 3 * i) : (3 + 3 * i), 3 : repetitions + 2]), xlab = "Semillas", ylab = "Distancia", main = NULL, use.cols=FALSE, labels = NULL, xaxt='n')
+  axis(1, at=1:3, labels = totalLengths[(1 + 3 * i) : (3 + 3 * i), 2])
+  graphics.off()
+}
+
+dims <- dim(totalLengths)[1] / 3
+
+names(totalLengths) <- c("density", "seeds", c(1: repetitions))
+
+for (i in 1 : 3) {
+  png(paste("LengthsS", i , ".png", sep = ""))
+  boxplot(data.matrix(totalLengths[seq(i, dim(totalLengths)[1], 3), 3 : repetitions + 2]), xlab = "Dimensiones", ylab = "Distancia", main = NULL, use.cols=FALSE, labels = NULL, xaxt='n')
+  axis(1, at=1:dims, labels = totalLengths[seq(i, dim(totalLengths)[1], 3), 1])
+  graphics.off()
 }
 
 png("Lengths.png")
-boxplot(data.matrix(totalLengths), xlab = "\u{CD}ndice de experimento", ylab = "Distancia", main = NULL, use.cols=FALSE)
-axis(1, at=1:15, labels=1:15)
+boxplot(data.matrix(totalLengths[, 3 : repetitions + 2]), xlab = "\u{CD}ndice de experimento", ylab = "Distancia", main = NULL, use.cols=FALSE, xaxt='n')
+axis(1, at=1 : dim(totalLengths)[1], labels=1 : dim(totalLengths)[1])
 graphics.off()
 
 den <- density(c(t(totalLengths)))
 png("Density.png")
-plot(den, xlab = "\u{CD}ndice de experimento", ylab = "Distancia", main = NULL) # plots the results
+plot(den, xlab = "Datos distribuidos", ylab = "Distancia", main = NULL)
 graphics.off()
