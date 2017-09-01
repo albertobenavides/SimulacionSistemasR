@@ -158,7 +158,7 @@ Experiment <- function(d, s) {
   return(lengths)
 }
 
-repetitions <- 1000
+repetitions <- 5
 
 totalLengths <- data.frame()
 
@@ -166,7 +166,6 @@ for (i in 0 : 3) {
   for (j in 1: 3) {
     dTemp <- 16 * 2 ^ i
     sTemp <- 16 * 2 ^ i * j / 4
-    print(paste(dTemp, sTemp))
     totalLengths <- rbind(
       totalLengths, c(
         dTemp,
@@ -176,9 +175,20 @@ for (i in 0 : 3) {
     )
   }
   png(paste("LengthsD", dTemp, ".png", sep = ""))
-  boxplot(data.matrix(totalLengths[(1 + 3 * i) : (3 + 3 * i), 3 : repetitions + 2]), xlab = "Semillas", ylab = "Distancia", main = NULL, use.cols=FALSE, labels = NULL, xaxt='n')
+  boxplot(data.matrix(totalLengths[(1 + 3 * i) : (3 + 3 * i), 3 : (repetitions + 2)]), xlab = "Semillas", ylab = "Distancia", main = NULL, use.cols=FALSE, labels = NULL, xaxt='n')
   axis(1, at=1:3, labels = totalLengths[(1 + 3 * i) : (3 + 3 * i), 2])
   graphics.off()
+
+  print(paste("Dimension", dTemp))
+  s1 <- c(t(totalLengths[(1 + 3 * i), 3 : (repetitions + 2)]))
+  s2 <- c(t(totalLengths[(2 + 3 * i), 3 : (repetitions + 2)]))
+  s3 <- c(t(totalLengths[(3 + 3 * i), 3 : (repetitions + 2)]))
+  dati <- data.frame(
+    Distancia = c(s1, s2, s3),
+    Semilla = factor(c(rep("a", repetitions), rep("b", repetitions), rep("c", repetitions)))
+  )
+  datanova <- lm(dati$Distancia ~ dati$Semilla)
+  print(anova(datanova))
 }
 
 dims <- dim(totalLengths)[1] / 3
