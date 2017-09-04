@@ -1,0 +1,36 @@
+[1] "Anova entre semillas d = 16"
+Analysis of Variance Table
+
+Response: dati$Length
+            Df Sum Sq Mean Sq F value    Pr(>F)    
+dati$Seed    2   9702    4851  10.999 1.811e-05 ***
+Residuals 1497 660245     441                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+[1] "Anova entre semillas d = 32"
+Analysis of Variance Table
+
+Response: dati$Length
+            Df  Sum Sq Mean Sq F value    Pr(>F)    
+dati$Seed    2   38361 19180.5  27.857 1.322e-12 ***
+Residuals 1497 1030720   688.5                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+[1] "Anova entre semillas d = 64"
+Analysis of Variance Table
+
+Response: dati$Length
+            Df Sum Sq Mean Sq F value    Pr(>F)    
+dati$Seed    2  27575 13787.5  25.258 1.628e-11 ***
+Residuals 1497 817175   545.9                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+[1] "Anova entre semillas d = 128"
+Analysis of Variance Table
+
+Response: dati$Length
+            Df Sum Sq Mean Sq F value    Pr(>F)    
+dati$Seed    2   6911  3455.4  8.8194 0.0001557 ***
+Residuals 1497 586515   391.8                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1

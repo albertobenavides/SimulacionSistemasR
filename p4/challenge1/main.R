@@ -1,5 +1,6 @@
 suppressMessages(library(doParallel))
 unlink("C*.png")
+sink("results.txt", append=FALSE, split=FALSE)
 
 Experiment <- function(d, s) {
   Voronoi <- function(r) {
@@ -93,13 +94,14 @@ Experiment <- function(d, s) {
   size <- dimension * dimension
   voronoiMaterial <- matrix(rep(0, size), ncol = dimension, nrow = dimension)
   seeds <- s
-  seedPositions <- sample(1 : size, seeds)
+  positions <- matrix(1: dimension, ncol = dimension, nrow = dimension)
+  seedPositions <- sample(1 : floor(size / 3), seeds) # cargado a la iz
 
   for (i in 1:seeds) {
     voronoiMaterial[seedPositions[i]] = i;
   }
 
-  if(dimension == 64 & seeds == 16){
+  if(dimension == 64 & seeds == 48){
     png("VoronoiInitial.png")
     par(mar = c(0,0,0,0))
     image(Rotate(voronoiMaterial), col=c(colors()[24], terrain.colors(seeds + 1)))
@@ -113,9 +115,9 @@ Experiment <- function(d, s) {
   nextMatrix <- foreach(r = 1:size, .combine=c) %dopar% Voronoi(r)
   stopImplicitCluster()
 
-  voronoiMaterial <- matrix(nextMatrix, nrow = dimension, ncol = dimension, byrow = TRUE)
+  voronoiMaterial <- matrix(nextMatrix, nrow = dimension, ncol = dimension)
 
-  if(dimension == 64 & seeds == 16){
+  if(dimension == 64 & seeds == 48){
     voronoiMaterial[1] <- 0
     png("VoronoiFinal.png")
     par(mar = c(0,0,0,0))
@@ -158,7 +160,7 @@ Experiment <- function(d, s) {
   return(lengths)
 }
 
-repetitions <- 5
+repetitions <- 500
 
 totalLengths <- data.frame()
 
