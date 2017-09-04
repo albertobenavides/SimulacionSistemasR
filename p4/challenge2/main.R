@@ -2,8 +2,6 @@ suppressMessages(library(doParallel))
 unlink("C*.png")
 sink("results.txt", append=FALSE, split=FALSE)
 
-distribution <- 3 # left; 1 center; 2 border; 3 net
-
 Experiment <- function(d, s) {
   Voronoi <- function(r) {
     if(voronoiMaterial[r] > 0) {
@@ -80,7 +78,7 @@ Experiment <- function(d, s) {
 
     f <- list.files(path = ".", pattern="Crack*")
 
-    if(crackLength >= 100 & length(f) <= 5 & dimension == 64 & (seeds == 48 | seeds == 36)) {
+    if(crackLength >= 100 & length(f) <= 5 & dimension == 64 & seeds == 48) {
       png(paste("Crack", r, ".png", sep=""))
       par(mar = c(0,0,0,0))
       image(Rotate(voronoiCracked), col=c(colors()[24], terrain.colors(seeds + 1)))
@@ -96,52 +94,13 @@ Experiment <- function(d, s) {
   size <- dimension * dimension
   voronoiMaterial <- matrix(rep(0, size), ncol = dimension, nrow = dimension)
   seeds <- s
-  positions <- matrix(1: size, ncol = dimension, nrow = dimension)
-  if(distribution == 0){
-    seedPositions <- sample(1 : floor(size / 3), seeds) # cargado a la izquierda
-  } else if(distribution == 1){
-    seedPositions <- sample(
-      positions[
-        floor(dimension / 3) : floor(dimension / 3 * 2),
-        floor(dimension / 3) : floor(dimension / 3 * 2)
-      ],
-      seeds
-    )
-  } else if(distribution == 2){
-    seedPositions <- sample(
-      c(
-        positions[ # left border
-          1 : dimension, 1 : floor(dimension / 8)
-        ],
-        positions[ # rigth border
-          1 : dimension, floor(dimension / 8 * 7) : dimension
-        ],
-        positions[ # top
-          1 : floor(dimension / 8), floor(dimension / 8) : floor(dimension / 8 * 7)
-        ],
-        positions[ # bottom
-          floor(dimension / 8 * 7) : dimension, floor(dimension / 8) : floor(dimension / 8 * 7)
-        ]
-      ),
-      seeds
-    )
-  } else if(distribution == 3){
-    seedsDim <- floor(sqrt(seeds))
-    seedsDim <- floor(dimension / seedsDim)
-    seedPositions <- numeric()
-    for (i in seq(floor(seedsDim / 4 * 3), dimension, seedsDim)) {
-      for(j in seq(floor(seedsDim / 4 * 3), dimension, seedsDim)) {
-        seedPositions <- c(seedPositions, positions[i, j])
-      }
-    }
-    seeds <- length(seedPositions)
-  }
+  seedPositions <- sample(1 : size, seeds)
 
   for (i in 1:seeds) {
     voronoiMaterial[seedPositions[i]] = i;
   }
 
-  if(dimension == 64 & (seeds == 48 | seeds == 36)){
+  if(dimension == 64 & seeds == 48){
     png("VoronoiInitial.png")
     par(mar = c(0,0,0,0))
     image(Rotate(voronoiMaterial), col=c(colors()[24], terrain.colors(seeds + 1)))
@@ -157,7 +116,7 @@ Experiment <- function(d, s) {
 
   voronoiMaterial <- matrix(nextMatrix, nrow = dimension, ncol = dimension)
 
-  if(dimension == 64 & (seeds == 48 | seeds == 36)){
+  if(dimension == 64 & seeds == 48){
     voronoiMaterial[1] <- 0
     png("VoronoiFinal.png")
     par(mar = c(0,0,0,0))
