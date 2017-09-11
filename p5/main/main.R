@@ -26,31 +26,43 @@ parte <- function() {
     return(sum(valores >= desde & valores <= hasta))
 }
 
-integrales <- numeric()
-times <- numeric()
+minIntegrales <- data.frame()
+iterator = 1
 
 suppressMessages(library(doParallel))
 registerDoParallel(makeCluster(detectCores() - 1))
-for (i in seq(100000, 1000000, 100000)) {
-  pedazo <- i
-  t <- system.time(
-    montecarlo <- foreach(i = 1:cuantos, .combine=c) %dopar% parte()
-  )[3]
-  stopImplicitCluster()
-  integral <- sum(montecarlo) / (cuantos * pedazo) # promedio de todas
-  val <- ((pi / 2) * integral)
-  dif <- abs(0.048834 - val)
+for (i in c(10, 100, 1000)) {
+  integrales <- numeric()
+  times <- numeric()
+  for (i in seq(i, i * 10, i)) {
+    pedazo <- i
+    t <- system.time(
+      montecarlo <- foreach(i = 1:cuantos, .combine=c) %dopar% parte()
+    )[3]
+    stopImplicitCluster()
+    integral <- sum(montecarlo) / (cuantos * pedazo) # promedio de todas
+    val <- ((pi / 2) * integral)
+    dif <- abs(0.048834 - val)
 
-  integrales <- c(integrales, dif)
-  times <- c(times, t)
+    integrales <- c(integrales, dif)
+    times <- c(times, t)
+  }
+  png(paste(i, "diff.png", sep =""))
+  plot(integrales, xlab = "Valores aleatorios", ylab = "Diferencia con Wolfram", xaxt='n')
+  axis(1, at=1:10, labels = seq(i, i * 10, i))
+  graphics.off()
+
+  png(paste(i, "times.png", sep=""))
+  plot(times, xlab = "Valores aleatorios", ylab = "Tiempo", xaxt='n')
+  axis(1, at=1:10, labels = seq(i, i * 10, i))
+  graphics.off()
+
+  print(min(integrales))
+  minIntegrales <- rbind(minIntegrales, c(iterator, i, min(integrales)))
+  iterator <- iterator + 1
 }
 
-png("100000diff.png")
-plot(integrales, xlab = "Valores aleatorios", ylab = "Diferencia con Wolfram", xaxt='n')
-axis(1, at=1:10, labels = seq(100000, 1000000, 100000))
-graphics.off()
-
-png("100000times.png")
-plot(times, xlab = "Valores aleatorios", ylab = "Tiempo", xaxt='n')
-axis(1, at=1:10, labels = seq(100000, 1000000, 100000))
+png("minIntegrales.png")
+plot(minIntegrales[,1], minIntegrales[,3], xlab = "Valores aleatorios", ylab = "Tiempo", xaxt='n')
+axis(1, at=1:3, labels = minIntegrales[, 2], )
 graphics.off()
