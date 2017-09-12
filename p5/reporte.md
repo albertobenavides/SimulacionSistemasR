@@ -38,7 +38,7 @@ parte <- function() {
 
 $$100, 200, 300, 400, 500, 600, 700, 800, 900, 1000.$$
 
-Además, se registró el tiempo que tomaron estos experimentos agrupados por las secuencias descritas. Los experimentos de cien hasta mil repeticiones, siempre agrupados en las secuencias arriba detalladas, representan tiempos despreciables y que no guardan una relación representativa. Sus gráficas se muestran en la figura \ref{tiempos100-1000} (p. \pageref{tiempos100-1000}).
+Además, se registró el tiempo que tomaron estos experimentos agrupados por las secuencias descritas. Los experimentos de cien hasta diez mil repeticiones, siempre agrupados en las secuencias arriba detalladas, representan tiempos despreciables y que no guardan una relación representativa. Sus gráficas se muestran en la figura \ref{tiempos100-1000} (p. \pageref{tiempos100-1000}).
 
 ![Tiempos que requirió el experimento en correrse con las repeticiones dadas por la secuencia de $i = 10^2$ (izquierda) y de $i = 10^3$ (derecha). \label{tiempos100-1000}](main/times100-1000.png)
 
@@ -48,9 +48,9 @@ Más representativos fueron los tiempos del resto de las secuencias, en donde se
 
 Ahora bien, el valor de la integral antes definida es de $0.048834$, calculado en Wolfram Alpha. Para conocer la cercanía que las aproximaciones obtenidas tuvieron con este resultado, se restaba a cada una de esas aproximaciones dicho valor y al resultado se le sacaba su valor absoluto, para así tener una cifra positiva que representara la distancia de cada aproximación con el valor calculado. De entre todas las diferencias calculadas en el experimento, se muestran en la figura \ref{minTimes} (p. \pageref{minTimes}) las menores de todas las secuencias.
 
-![Diferencias mínimas de las secuencias de $i = {10^2, 10^3, 10^4}$ (izquierda) e $i = {10^4, 10^5, 10^6}$ (derecha). \label{minTimes}](main/minIntegralesTodas.png)
+![Diferencias mínimas de las secuencias de $i = \{10^2, 10^3, 10^4\}$ (izquierda) e $i = \{10^4, 10^5, 10^6\}$ (derecha). \label{minTimes}](main/minIntegralesTodas.png)
 
-Esta selección de diferencias mínimas muestra que en la secuencia de $i = 10^4$ se registró la diferencia mínima de entre todas las obtenidas, por lo que será precisamente la gráfica de esa secuencia la que se muestre (figura \ref{10000diff}, p. \pageref{10000diff}), por ser la de nuestro interés. Finalmente, en esta secuencia se puede observar que la diferencia con el valor esperado es despreciable.
+Esta selección de diferencias mínimas muestra que en la secuencia de $i = 10^4$ se registró la diferencia mínima de entre todas las obtenidas, por lo que será precisamente la gráfica de esa secuencia la que se muestre (figura \ref{10000diff}, p. \pageref{10000diff}), por ser la de nuestro interés. Finalmente, en esta secuencia se puede observar que la diferencia en la mayoría de las aproximaciones con el valor es despreciable.
 
 ![Diferencias de la secuencia donde $i = 10^4$. \label{10000diff}](main/10000diff.png)
 
