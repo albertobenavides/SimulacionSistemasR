@@ -16,15 +16,15 @@ circle <- function(){
 
 rep <- 10000
 
-for (i in seq(rep, rep * 10, rep)) {
+for (r in seq(rep, rep * 10, rep)) {
   times <- system.time(
-   piValues <- foreach(i = 1:i, .combine=c) %dopar% circle()
+   piValues <- foreach(i = 1:r, .combine=c) %dopar% circle()
   )[3]
   stopImplicitCluster()
   dif <- pi - median(piValues)
   totalPiValues <- c(totalPiValues, abs(dif))
   totalTimes <- c(totalTimes, times)
-  print(i)
+  print(r)
 }
 
 png("PiValues.png")
