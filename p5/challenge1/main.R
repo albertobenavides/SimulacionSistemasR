@@ -18,7 +18,7 @@ rep <- 10000
 
 for (r in seq(rep, rep * 10, rep)) {
   times <- system.time(
-   piValues <- foreach(i = 1:r, .combine=c) %dopar% circle()
+   piValues <- foreach(i = sample(1:r), .combine=c) %dopar% circle()
   )[3]
   stopImplicitCluster()
   dif <- pi - median(piValues)

@@ -1,6 +1,7 @@
-suppressMessages(library(doParallel))
-registerDoParallel(makeCluster(detectCores() - 1))
+library(doParallel)
+cl <- makeCluster(detectCores() - 1)
 library(truncnorm)
+clusterEvalQ(cl,library(truncnorm))
 library(matrixStats)
 
 data <- read.csv("zika.csv", header=TRUE, sep=",")
@@ -8,14 +9,17 @@ data <- read.csv("zika.csv", header=TRUE, sep=",")
 meanData <- mean(data$casos)
 medianData <- median(data$casos)
 sdData <- sd(data$casos)
+clusterExport(cl, "meanData")
+clusterExport(cl, "sdData")
 
-experiment <- function(){
+experiment <- function(r){
   sample <- floor(rtruncnorm(68, a = 0, mean = meanData, sd = sdData))
   return(sample)
 }
 
-runs <- 50000
-changes <- replicate(runs, experiment())
+runs <- 500000
+changes <- parSapply(cl, 1:runs, experiment)
+stopCluster(cl)
 
 means <- colMeans(changes[1: 34,], na.rm = T)
 medians <- colMeans(changes[1: 34,], na.rm = T)
