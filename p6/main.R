@@ -4,7 +4,7 @@ totalAgents <- 50
 maxVelocity <- 1 / 20
 infectionProbability = 0.05
 recuperationProbability = 0.02
-vaccineProbability = 1 / 3
+vaccineProbability = 0.03
 infectionRadius <- 0.1
 maxTime <- 100
 
@@ -14,31 +14,20 @@ agents <- data.frame(
   dx = runif(totalAgents, -maxVelocity, maxVelocity),
   dy = runif(totalAgents, -maxVelocity, maxVelocity),
   state = sample(
-    c("S", "I"),
+    c("S", "I", "R"),
     totalAgents,
     replace = T,
     prob = c(
-      1 - infectionProbability,
-      infectionProbability
+      1 - infectionProbability - vaccineProbability,
+      infectionProbability,
+      vaccineProbability
     )
   )
 )
 
-levels(agents$state) <- c("I", "S", "R")
+levels(agents$state) <- c("I", "R", "S")
 
-cured <- 0
-initialInfectedAgents <- agents[agents$state == "I", ]
-for (i in 1:totalAgents) {
-  t <- agents[i, ]
-  if(t$state == "I"){
-    if(runif(1) < vaccineProbability){
-      t$state <- "R"
-      agents[i, ] <- t
-      cured <- cured + 1
-    }
-  }
-}
-print(paste("Curados:", cured, "/", nrow(initialInfectedAgents)))
+print(nrow(agents[agents$state == "R", ]))
 
 update <- function(){
   agent <- agents[i, ]
