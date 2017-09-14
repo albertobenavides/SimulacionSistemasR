@@ -4,6 +4,7 @@ totalAgents <- 50
 maxVelocity <- 1 / 20
 infectionProbability = 0.05
 recuperationProbability = 0.02
+vaccineProbability = 1 / 3
 infectionRadius <- 0.1
 maxTime <- 100
 
@@ -24,6 +25,20 @@ agents <- data.frame(
 )
 
 levels(agents$state) <- c("I", "S", "R")
+
+cured <- 0
+initialInfectedAgents <- agents[agents$state == "I", ]
+for (i in 1:totalAgents) {
+  t <- agents[i, ]
+  if(t$state == "I"){
+    if(runif(1) < vaccineProbability){
+      t$state <- "R"
+      agents[i, ] <- t
+      cured <- cured + 1
+    }
+  }
+}
+print(paste("Curados:", cured, "/", nrow(initialInfectedAgents)))
 
 update <- function(){
   agent <- agents[i, ]
@@ -64,6 +79,11 @@ update <- function(){
 cluster <- makeCluster(detectCores() - 1)
 registerDoParallel(cluster)
 for (generation in 1:maxTime) {
+  aI <- agents[agents$state == "I", ]
+  if(nrow(aI) == 0){
+    print(paste("No hay infectados en", generation))
+    break
+  }
   clusterExport(cluster, "agents")
   nextGeneration <- foreach(i = 1:totalAgents, .combine=rbind) %dopar% update()
   agents <- nextGeneration
