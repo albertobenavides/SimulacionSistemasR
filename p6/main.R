@@ -1,4 +1,4 @@
-supressMessages(library(doParallel))
+suppressMessages(library(doParallel))
 space <- 1
 totalAgents <- 50
 maxVelocity <- 1 / 20
@@ -24,32 +24,36 @@ agents <- data.frame(
 levels(agents$state) <- c("I", "S", "R")
 
 update <- function(){
-  for (generation in 1:maxTime) {
-    for (i in 1:totalAgents) {
-      # todo: agregar infección
-      agent <- agents[i, ]
-      agent$x <- agent$x + agent$dx
-      agent$y <- agent$y + agent$dy
-      if(agent$x > space){
-        agent$x <- agent$x - space
-      } else if(agent$x < 0){
-        agent$x <- agent$x + space
-      }
-      if(agent$y > space){
-        agent$y <- agent$y - space
-      } else if(agent$y < 0){
-        agent$y <- agent$y + space
-      }
-      agents[i, ] <- agent
-    } # endfor totalAgents
-    png(paste("img/", sprintf("%03d", generation), ".png", sep=""))
-    plot(1, type="n", main = generation, xlim = c(0, space), ylim = c(0, space), xlab = "x", ylab = "y")
-    points(agents$x, agents$y, pch=15, col="chartreuse3", bg="chartreuse3")
-    graphics.off()
-  } # endfor maxTime
+  # todo: agregar infección
+  agent <- agents[i, ]
+  agent$x <- agent$x + agent$dx
+  agent$y <- agent$y + agent$dy
+  if(agent$x > space){
+    agent$x <- agent$x - space
+  } else if(agent$x < 0){
+    agent$x <- agent$x + space
+  }
+  if(agent$y > space){
+    agent$y <- agent$y - space
+  } else if(agent$y < 0){
+    agent$y <- agent$y + space
+  }
+  return(agent)
 }
 
-update()
+cluster <- makeCluster(detectCores() - 1)
+registerDoParallel(cluster)
+for (generation in 1:maxTime) {
+  clusterExport(cluster, "agents")
+  nextGeneration <- foreach(i = 1:totalAgents, .combine=rbind) %dopar% update()
+  agents <- nextGeneration
+  stopImplicitCluster()
+
+  png(paste("img/", sprintf("%03d", generation), ".png", sep=""))
+  plot(1, type="n", main = generation, xlim = c(0, space), ylim = c(0, space), xlab = "x", ylab = "y")
+  points(agents$x, agents$y, pch=15, col="chartreuse3", bg="chartreuse3")
+  graphics.off()
+} # endfor generation
 
 system("magick -delay 20 img/*.png a.gif")
 unlink("img/*.png")
