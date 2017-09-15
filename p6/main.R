@@ -2,12 +2,12 @@ suppressMessages(library(doParallel))
 space <- 1
 totalAgents <- 50
 maxVelocity <- 1 / 20
-infectionProbability = 0.05
 recuperationProbability = 0.02
 vaccineProbability = 0.03
 infectionRadius <- 0.1
 maxTime <- 100
 
+infectionProbability = 0.05
 agents <- data.frame(
   x = runif(totalAgents),
   y = runif(totalAgents),
@@ -25,9 +25,18 @@ agents <- data.frame(
   )
 )
 
-levels(agents$state) <- c("I", "R", "S")
+aI <- agents[agents$state == "I", ]
+aR <- agents[agents$state == "R", ]
 
-print(nrow(agents[agents$state == "R", ]))
+if(nrow(aR) > 0 & nrow(aI) > 0){
+  levels(agents$state) <- c("I", "R", "S")
+} else if(nrow(aR) == 0 & nrow(aI) == 0){
+  levels(agents$state) <- c("S", "I", "R")
+} else if(nrow(aR) > 0){
+  levels(agents$state) <- c("R", "S", "I")
+} else if(nrow(aI) > 0){
+  levels(agents$state) <- c("I", "S", "R")
+}
 
 update <- function(){
   agent <- agents[i, ]
@@ -67,8 +76,11 @@ update <- function(){
 
 cluster <- makeCluster(detectCores() - 1)
 registerDoParallel(cluster)
+
+infected <- numeric()
 for (generation in 1:maxTime) {
   aI <- agents[agents$state == "I", ]
+  infected <- c(infected, nrow(aI))
   if(nrow(aI) == 0){
     print(paste("No hay infectados en", generation))
     break
@@ -94,6 +106,10 @@ for (generation in 1:maxTime) {
   }
   graphics.off()
 } # endfor generation
+
+png("Infected.png", width=600, height=300)
+plot(1:length(infected), 100 * infected / totalAgents, xlab="Tiempo", ylab="Porcentaje de infectados")
+graphics.off()
 
 system("magick -delay 20 img/*.png a.gif")
 unlink("img/*.png")
