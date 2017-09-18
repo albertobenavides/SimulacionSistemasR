@@ -1,5 +1,5 @@
+library(RColorBrewer)
 suppressMessages(library(doParallel))
-suppressMessages(library(vioplot))
 space <- 1
 totalAgents <- 50
 maxVelocity <- 1 / 20
@@ -110,6 +110,23 @@ for (iP in seq(0.05, 0.5, 0.05)) {
         points(aR$x, aR$y, pch=17, col="goldenrod", bg="goldenrod")
       }
       graphics.off()
+
+      if(generation == 1 | generation == 25 | generation == 50 | generation == 75){
+        png(paste(sprintf("%03d", generation), ".png", sep=""))
+        par(mfrow=c(2,2))
+        plot(1, type="n", main = generation, xlim = c(0, space), ylim = c(0, space), xlab = "x", ylab = "y")
+        if(nrow(aS) > 0){
+          points(aS$x, aS$y, pch=15, col="chartreuse3", bg="chartreuse3")
+        }
+        if(nrow(aI) > 0){
+          points(aI$x, aI$y, pch=16, col="firebrick2", bg="firebrick2")
+        }
+        if(nrow(aR) > 0){
+          points(aR$x, aR$y, pch=17, col="goldenrod", bg="goldenrod")
+        }
+        graphics.off()
+      }
+
     }
   } # endfor generation
   stopCluster(cluster)
@@ -121,6 +138,14 @@ png("Violin.png", width=600, height=300)
 boxplot(t(totalInfections),  xlab = "Probabilidad inicial de infecci\u{F3}n", ylab = "Porcentaje de infecci\u{F3}n", xaxt='n')
 axis(1, at=1:10, labels = seq(0.05, 0.5, 0.05))
 graphics.off()
+
+mycols <- rainbow(10)
+png("Compare.png", width=800, height=600)
+plot(1:maxTime, type="n", ylim = c(0, max(totalInfections) + 15), xlab = "Tiempo", ylab = "Porcentaje de infectados")
+legend(maxTime * 0.7, max(totalInfections) + 14, seq(0.05, 0.5, 0.05), cex=0.8, col=mycols, title="Probabilidad inicial de infecci\u{F3}n", lty=1)
+for (i in 1:nrow(totalInfections)) {
+  lines(1:maxTime, totalInfections[i, 1:maxTime], col = mycols[i])
+}
 
 system("magick -delay 20 img/*.png a.gif")
 unlink("img/*.png")
