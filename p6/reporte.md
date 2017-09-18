@@ -1,6 +1,6 @@
 % Sistema multiagente
 % Alberto Benavides
-% 17 de septiembre de 2017
+% 18 de septiembre de 2017
 
 # Objetivos
 
@@ -12,7 +12,7 @@
 
 Esta práctica se corrió en una computadora portátil con sistema operativo Windows 10 Home Single Language, procesador Intel(R) Core(TM) i7-7500U CPU @ $2.70$ GHz, $2904$ MHz de dos núcleos principales y cuatro lógicos.
 
-El sistema multiagente se simuló en un espacio bidimensional cuyos extremos se comunican como si de un toroide se tratara. En este espacio se sitúan de manera aleatoria cincuenta agentes que toman una ubicación bidimensional al azar con valores entre cero y uno, un vector de velocidad aleatorio cuyas componentes horizontal y vertical adquieren velocidades de entre $-1 / 20$ a $1 / 20$. Los posibles estados de estos agentes son **susceptible**, **infectado** y **recuperado**. Un agente susceptible puede ser infectado con una probabilidad ($p_c$) que depende de la distancia entre éste y un agente infectado ($d$), tal como expresa la fórmula
+El sistema multiagente se simuló en un espacio bidimensional cuyos extremos se comunican como si de un toroide se tratara. En este espacio se sitúan de manera aleatoria cincuenta agentes que toman una ubicación bidimensional al azar con valores entre cero y uno, un vector de velocidad aleatorio cuyas componentes horizontal y vertical adquieren velocidades de entre $-1 / 20$ a $1 / 20$. Los posibles estados de estos agentes son susceptible, infectado y recuperado. Un agente susceptible puede ser infectado con una probabilidad ($p_c$) que depende de la distancia euclidiana entre éste y un agente infectado ($d$), tal como expresa la fórmula
 
 $$p_c = \frac{0.1 - d}{d}$$
 
@@ -59,7 +59,7 @@ if(nrow(aR) > 0 & nrow(aI) > 0){
 }
 ```
 
-Ahora bien, la función a paralelizar incluye los cálculos concernientes a los contagios y actualizaciones de posición de los agentes, de modo que cada generación se comprueba si los agentes susceptibles pueden ser infectados de la manera antes descrita; si los infectados pueden recuperarse con base en la tasa de recuperación definida; y, posteriormente, se actualizan sus posiciones a partir de la velocidad que inicialmente se les había asignado de manera aleatoria.
+Ahora bien, la función a paralelizar para esta parte de la práctica incluye los cálculos concernientes a los contagios y actualizaciones de posición de los agentes, de modo que cada generación se comprueba si los agentes susceptibles pueden ser infectados de la manera antes descrita; si los infectados pueden recuperarse con base en la tasa de recuperación definida; y, posteriormente, se actualizan sus posiciones a partir de la velocidad que inicialmente se les había asignado de manera aleatoria.
 
 ```r
 update <- function(){
@@ -114,12 +114,25 @@ Con la finalidad de dar una idea visual de lo que sucede a los agentes con el pa
 
 ![Representación en un espacio bidimensional de los agentes susceptibles (cuadrados verdes), infectados (círculos rojos) y recuperados (triángulos naranjas) en las generaciones $1$, $25$, $50$ y $75$ para la probabilidad inicial de $0.05$ infectados. \label{Example}](Example.png)
 
-El porcentaje de infectados por generación se almacena de manera que, transcurridas cien generaciones o acabados los infectados, se puedan comparar estos datos por porcentaje inicial de infectados. La figura \ref{porcentajes} (p. \pageref{porcentajes}) muestra los porcentajes de infectados a lo largo del tiempo para todas las probabilidades iniciales con que se realizó el experimento. En este gráfico se puede ver que en las probabilidades iniciales de infección de $0.05$ y $0.1$ crecen los porcentajes de infectados más de $20\%$ hasta estabilizarse alrededor de las veinticinco generaciones, manteniéndose en un rango entre $30\%$ y $45\%$ la primera y entre $18\%$ y $25\%$ la segunda. Las probabilidades iniciales comprendidas entre $0.15$ y $0.35$, ambos incluidos, se mantienen en rangos que no superan el $20\%$ de infectados, salvo para la probabilidad inicial de $0.2$ que a las dieciséis generaciones superó en $20\%$ su estado inicial para luego descender por debajo de su porcentaje inicial de infectados a partir de las sesenta generaciones. Finalmente, las probabilidades iniciales de $0.4$, $0.45$ y $0.5$ inician con los mayores porcentajes de infectados, sin embargo, a partir de las veinte generaciones sus porcentajes disminuyen y no dejan de hacerlo a lo largo de las restantes iteraciones hasta llegar a $30\%$, $20\%$ y $10\%$ de infectados respectivamente.
+El porcentaje de infectados por generación se almacena de manera que, transcurridas cien generaciones o acabados los infectados, se puedan comparar estos datos por porcentaje inicial de infectados. La figura \ref{Porcentajes1} (p. \pageref{Porcentajes1}) muestra los porcentajes de infectados a lo largo del tiempo para las probabilidades iniciales de infección de $0.05$, $0.1$ y $0.15$ que crecen hasta un rango entre $18\%$ y $35\%$ en el que se mantienen hasta las cien primeras generaciones.
 
-![Resumen de porcentajes de infección totales por probabilidades de infección iniciales para esta simulación. \label{porcentajes}](Compare.png)
+![Porcentajes de infección totales por probabilidades iniciales de infección de $0.05$, $0.1$ y $0.15$. \label{Porcentajes1}](Compare1.png)
+
+Las probabilidades iniciales comprendidas entre $0.2$ y $0.35$, ambos incluidos, mostradas en la figura \ref{Porcentajes2} (p. \pageref{Porcentajes2}) se mantienen en rangos similares respecto a sus porcentajes iniciales en el paso del tiempo.
+
+![Porcentajes de infección totales por probabilidades iniciales de infección de $0.2$, $0.25$, $0.3$ y $0.35$. \label{Porcentajes2}](Compare2.png)
+
+Finalmente, las probabilidades iniciales de $0.4$, $0.45$ y $0.5$, graficadas en la figura \ref{Porcentajes3} (p. \pageref{Porcentajes3}), inician con los mayores porcentajes de infectados, sin embargo, sus porcentajes disminuyen a lo largo de las restantes iteraciones hasta llegar a porcentajes menores a $30\%$.
+
+![Porcentajes de infección totales por probabilidades iniciales de infección de $0.4$, $0.45$ y $0.5$. \label{Porcentajes3}](Compare3.png)
+
+Para analizar los porcentajes máximos de infectados se paralelizó de manera diferente la simulación, ya que el mismo experimento antes descrito se encapsuló en una función que se corrió veinte veces usando la función `%dopar%` ya mencionada; así, cada probabilidad inicial de infectados se ejecutó esas veinte veces. Los máximos para cada repetición y cada probabilidad inicial de infectados se almacenaron y plasmaron en una gráfica que muestra para cada probabilidad inicial de infectados un diagrama de caja y bigotes plasmados en la figura \ref{Boxplots} (p. \pageref{Boxplots}).
+
+![Diagramas de caja y bigotes de las probabilildades iniciales con base en el porcentaje de infectados máximo. \label{Boxplots}](test.png)
 
 # Conclusiones
 
-1. Probabilidades iniciales de infectados menores a $0.2$ crecen en las primeras veinticinco generaciones para estabilizarse después.
-2. Probabilidades iniciales de infectados entre $0.2$ y $0.35$, ambos incluidos, mantienen en su mayoría constantes los porcentajes de infectados a lo largo de las cien primeras generaciones.
+1. Probabilidades iniciales de infectados menores a $0.2$ crecen en las primeras para estabilizarse después.
+2. Probabilidades iniciales de infectados entre $0.2$ y $0.35$, ambos incluidos, mantienen constantes los porcentajes de infectados a lo largo de las cien primeras generaciones.
 3. Probabilidades de infectados iniciales mayores o iguales a $0.4$ disminuyen continuamente sus infectados en las cien primeras generaciones.
+4. Los porcentajes máximos para cada probabilidad inicial de infectados incrementan de una manera muy similar a la exponencial al incrementarse la probabilidad mencionada.

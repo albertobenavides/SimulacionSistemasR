@@ -134,18 +134,32 @@ for (iP in seq(0.05, 0.5, 0.05)) {
   totalInfections <- rbind(totalInfections, infectedPercentage)
 }
 
-png("Violin.png", width=600, height=300)
-boxplot(t(totalInfections),  xlab = "Probabilidad inicial de infecci\u{F3}n", ylab = "Porcentaje de infecci\u{F3}n", xaxt='n')
-axis(1, at=1:10, labels = seq(0.05, 0.5, 0.05))
-graphics.off()
-
-mycols <- rainbow(10)
-png("Compare.png", width=800, height=600)
+mycols <- rainbow(3)
+png("Compare1.png", width=800, height=600)
 plot(1:maxTime, type="n", ylim = c(0, max(totalInfections) + 15), xlab = "Tiempo", ylab = "Porcentaje de infectados")
-legend(maxTime * 0.7, max(totalInfections) + 14, seq(0.05, 0.5, 0.05), cex=0.8, col=mycols, title="Probabilidad inicial de infecci\u{F3}n", lty=1)
-for (i in 1:nrow(totalInfections)) {
+legend(maxTime * 0.7, max(totalInfections) + 14, seq(0.05, 0.15, 0.05), cex=0.8, col=mycols, title="Probabilidad inicial de infecci\u{F3}n", lty=1)
+for (i in 1:3) {
   lines(1:maxTime, totalInfections[i, 1:maxTime], col = mycols[i])
 }
+graphics.off()
+
+mycols <- rainbow(4)
+png("Compare2.png", width=800, height=600)
+plot(1:maxTime, type="n", ylim = c(0, max(totalInfections) + 15), xlab = "Tiempo", ylab = "Porcentaje de infectados")
+legend(maxTime * 0.7, max(totalInfections) + 14, seq(0.2, 0.35, 0.05), cex=0.8, col=mycols, title="Probabilidad inicial de infecci\u{F3}n", lty=1)
+for (i in 4:7) {
+  lines(1:maxTime, totalInfections[i, 1:maxTime], col = mycols[i - 3])
+}
+graphics.off()
+
+mycols <- rainbow(3)
+png("Compare3.png", width=800, height=600)
+plot(1:maxTime, type="n", ylim = c(0, max(totalInfections) + 15), xlab = "Tiempo", ylab = "Porcentaje de infectados")
+legend(maxTime * 0.7, max(totalInfections) + 14, seq(0.4, 0.5, 0.05), cex=0.8, col=mycols, title="Probabilidad inicial de infecci\u{F3}n", lty=1)
+for (i in 8:10) {
+  lines(1:maxTime, totalInfections[i, 1:maxTime], col = mycols[i - 7])
+}
+graphics.off()
 
 system("magick -delay 20 img/*.png a.gif")
 unlink("img/*.png")
