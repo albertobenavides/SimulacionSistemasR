@@ -2,14 +2,14 @@ library(parallel)
 library(lattice)
 source("g.R")
 source("experiment.R")
-
-unlink("img/*.png")
+source("challenge1.R")
+source("challenge2.R")
 
 low <- -4
 high <- 4
 step <- 0.2
 repetitions <- 100
-maxTime <- 100
+debug <- FALSE
 
 x <- seq(low, high, step)
 y <- x
@@ -23,7 +23,10 @@ clusterExport(cluster, "step")
 clusterExport(cluster, "maxTime")
 clusterExport(cluster, "g")
 system.time(
-  resultados <- parSapply(cluster, 1:repetitions, experiment)
+  results <- parSapply(cluster, 1:repetitions, experiment)
+)[3]
+system.time(
+  results2 <- parSapply(cluster, seq(0.999, 0.9, -0.001), challenge2)
 )[3]
 stopCluster(cluster)
 
@@ -31,69 +34,77 @@ stopCluster(cluster)
 maxZ = 0.0666822
 maxZ.at <- c(-0.333023, -0.333023)
 
-valores <- g(resultados[1, ], resultados[2, ])
-mejor <- which.max(valores)
-print(resultados[, mejor])
-print(valores[mejor])
+values <- g(results[1, ], results[2, ])
 
-png("img/lattice.png")
-levelplot(z ~ x * y, data = d,
-  panel = function(...) {
-    panel.levelplot(...)
-    panel.xyplot(resultados[1, ], resultados[2, ], pch = 20, col = "red")
-    panel.xyplot(resultados[1, mejor], resultados[2, mejor], pch = 15, col = "black")
-  }
+best <- which.max(values)
+print(
+  paste(
+    "Mejor coordenada: ",
+    "(", results[1, best], ", ", results[2, best], ")",
+    sep = ""
+  )
 )
+print(
+  paste(
+    "g(x, y) = ", values[best],
+    sep = ""
+  )
+)
+png("BestBoxplot.png")
+boxplot(values, xlab = "Experimento", ylab = "g(x, y)", ylim = c(min(values), maxZ))
+abline(h = maxZ, col = "red", lwd = 3)
+abline(h = values[best], col = "blue", lty = 3, lwd = 2)
 graphics.off()
 
-example <- function() {
-  curr <- c(
-    runif(1, low, high), runif(1, low, high)
+values2 <- g(results2[1, ], results2[2, ])
+best2 <- which.max(values2)
+print(
+  paste(
+    "Mejor coordenada Reto 2: ",
+    "(", results2[1, best2], ", ", results2[2, best2], ")",
+    sep = ""
   )
-  best <- curr
-  todos <- data.frame()
-  for (i in 1:100) {
-    delta <- runif(1, 0, step)
-    left <- curr[1] - delta
-    right <- curr[1] + delta
-    bottom <- curr[2] - delta
-    top <- curr[2] + delta
-    if(left < low | right > high | bottom < low | top > high){
-      break
-    }
-    if (g(left, bottom) > g(curr[1], curr[2])) {
-      curr <- c(left, bottom)
-    }
-    if (g(left, top) > g(curr[1], curr[2])) {
-      curr <- c(left, top)
-    }
-    if (g(right, top) > g(curr[1], curr[2])) {
-      curr <- c(right, top)
-    }
-    if (g(right, bottom) > g(curr[1], curr[2])) {
-      curr <- c(right, bottom)
-    }
+)
+print(
+  paste(
+    "g(x, y) = ", values2[best2],
+    sep = ""
+  )
+)
+print(
+  paste(
+    "Mejor t = ", seq(0.999, 0.9, -0.001)[best],
+    sep = ""
+  )
+)
 
-    png(paste("img/", sprintf("%03d", i), ".png", sep = ""))
-    plot.new()
-    print(
-      levelplot(z ~ x * y, data = d,
-        panel = function(...) {
-          panel.levelplot(...)
-          panel.xyplot(curr[1], curr[2], pch = 15, col = "black")
-        }
-      )
-    )
-    graphics.off()
+colnames(results2) <- seq(0.999, 0.9, -0.001)
+rownames(results2) <- c("x", "y")
 
-    if(curr[1] == best[1] & curr[2] == best[2]){
-      break
-    } else {
-      best <- curr
+if (debug){
+  unlink("img/*.png")
+
+  png("img/experiment.png")
+  levelplot(z ~ x * y, data = d,
+    panel = function(...) {
+      panel.levelplot(...)
+      panel.xyplot(results[1, ], results[2, ], pch = 20, col = "red")
+      panel.xyplot(results[1, best], results[2, best], pch = 15, col = "black")
     }
-  }
+  )
+  graphics.off()
+
+  png("img/experiment2.png")
+  levelplot(z ~ x * y, data = d,
+    panel = function(...) {
+      panel.levelplot(...)
+      panel.xyplot(results2[1, ], results2[2, ], pch = 20, col = "red")
+      panel.xyplot(results2[1, best2], results2[2, best2], pch = 15, col = "black")
+    }
+  )
+  graphics.off()
+
+  challenge1()
+
+  system("magick -delay 20 img/0*.png a.gif")
 }
-
-example()
-
-system("magick -delay 20 img/0*.png a.gif")
