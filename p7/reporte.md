@@ -59,29 +59,35 @@ experiment <- function(t) {
 }
 ```
 
-Una vez obtenidas las cien coordenadas de mayores resultados para cada iteración, se calculó el máximo de esos valores por iteración de pasos evidenciando que a mayor cantidad de pasos, la aproximación al resultado esperado es más cercana. En el rango establecido, el máximo local de $g(x, y)$ es $0.0666822$, valor obtenido de WolframAlpha[^945026fb]. Se puede cotejar este resultado con los obtenidos en el experimento descrito, mostrados en el cuadro \ref{ExperimentSummary} (p. \pageref{ExperimentSummary}), y comprobar que a partir de los mil pasos se alcanzar valores muy cercanos al calculado.
+Una vez obtenidas las cien coordenadas de mayores resultados para cada iteración, se calculó el máximo de esos valores por iteración de pasos evidenciando que a mayor cantidad de pasos, la aproximación al resultado esperado es más cercana. En el rango establecido, el máximo local de $g(x, y)$ es $0.0666822$, valor obtenido de WolframAlpha[^945026fb]. Se puede cotejar este resultado con los obtenidos en el experimento descrito, mostrados en el cuadro \ref{ExperimentSummary} (p. \pageref{ExperimentSummary}) y graficados en la figura \ref{e1Test} (p. \pageref{e1Test}), y comprobar que a partir de los mil pasos se alcanzar valores muy cercanos al calculado.
+
+[^945026fb]: http://www.wolframalpha.com/
 
 \begin{table}[]
 \centering
-\caption{Máximos por pasos}
+\caption{Valores $g(x, y)$ por pasos}
 \label{ExperimentSummary}
-\begin{tabular}{@{}cc@{}}
-\toprule
-\textbf{Pasos} & máx$(g(x, y))$    \\ \midrule
-$100$          & $0.0666821218032$ \\
-$1000$         & $0.0666821561860$ \\
-$10000$        & $0.0666821562387$ \\
-$100000$       & $0.0666821562410$ \\ \bottomrule
+\begin{tabular}{rc}
+\hline
+\multicolumn{1}{l}{\textbf{Pasos}} & máx$(g(x, y))$  \\ \hline
+$100$                              & $0.06668212180$ \\
+$1000$                             & $0.06668215618$ \\
+$10000$                            & $0.06668215623$ \\
+$100000$                           & $0.06668215624$ \\ \hline
 \end{tabular}
 \end{table}
 
-Los tiempos de ejecución del experimento por cantidad de pasos se muestran en la figura \ref{ExperimentTimes} (p. \pageref{ExperimentTimes}). Puesto que a partir de mil pasos se obtuvieron resultados satisfactorios en este experimento y el tiempo que toma en correrse su simulación es pequeño, se tomó para estudiar el objetivo 3 esta misma cantidad de pasos.
+![Valores de $g(x, y)$ dadas cantidades de pasos por buscador. \label{e1Test}](test.png)
+
+Los tiempos de ejecución del experimento por cantidad de pasos se muestran en la figura \ref{ExperimentTimes} (p. \pageref{ExperimentTimes}). Puesto que a partir de mil pasos se obtuvieron resultados satisfactorios en este experimento y el tiempo que toma en correrse su simulación es pequeño, se eligió para estudiar el objetivo 3 esta misma cantidad de pasos.
 
 ![Tiempo que tomó correr el experimento por la cantidad de pasos que se pasaban como parámetro. \label{ExperimentTimes}](img/e1Elapsed.jpg)
 
-Una visualización del recorrido de ocho buscadores puede revisarse como ejemplo en la siguiente dirección: https://goo.gl/9MCJVn. Esta animación representa varios buscadores que en un máximo de cien pasos buscan el valor máximo de $g(x, y)$ para un rango de $x$ e $y$ de $[-4, 4]$ con el algoritmo dado.
+Una visualización del recorrido de ocho buscadores puede revisarse como ejemplo en la siguiente dirección: https://goo.gl/9MCJVn. Esta animación representa varios buscadores que en un máximo de cien pasos buscan el valor máximo de $g(x, y)$ para un rango de $x$ e $y$ de $[-4, 4]$ con el algoritmo dado. Por lo general, un buscador tarda $40$ pasos en encontrar una máxima $g(x, y)$.
 
-Para el objetivo 3, la regla de movimiento se modificó de la manera descrita en el reto 2 de la **Práctica 7: búsqueda local**[^38080c50], con la salvedad de que la probabilidad de aceptar a un vecino $x'$ toma $\delta$ en lugar de $-\delta$ para así poder obtener los máximos en lugar de los mínimos locales en $g(x, y). Además, se optó por actualizar $T$ sólo cuando se aceptara un vecino peor respecto a la búsqueda del mayor valor de $g(x, y)$. Los valores para $T$ dados fueron una secuencia de $0.995$ a $0.95$ en pasos de $-0.1$, esto es de más permisivo a menos permisivo. El siguiente código muestra la metodología descrita trasladada al lenguaje R:
+Para el objetivo 3, la regla de movimiento se modificó de la manera descrita en el reto 2 de la **Práctica 7: búsqueda local**[^38080c50], con la salvedad de que la probabilidad de aceptar a un vecino $x'$ toma $\delta$ en lugar de $-\delta$ para así poder obtener los máximos en lugar de los mínimos locales en $g(x, y)$. Además, se optó por actualizar $T$ sólo cuando se aceptara un vecino peor respecto a la búsqueda del mayor valor de $g(x, y)$. Los valores para $T$ dados fueron una secuencia de $0.995$ a $0.95$ en pasos de $-0.1$, esto es de más permisivo a menos permisivo. El siguiente código muestra la metodología descrita trasladada al lenguaje R:
+
+[^38080c50]: http://elisa.dyndns-web.com/teaching/comp/par/p7.html
 
 ```r
 t <- seq(0.995, 0, -0.1)
@@ -121,14 +127,9 @@ challenge2 <- function(r) {
 }
 ```
 
-Los resultados obtenidos en mil pasos por cada uno de los cien buscadores para cada valor de $T$ se plasmaron en la figura \ref{e2Max} (p. \pageref{e2Max}). Aquí, nuevamente, conforme aumenta la cantidad de pasos también la estimación es más cercana a la calculada, mostrada por una línea roja punteada. Además, valores poco permisivos mejoran la aproximación al resultado esperado. La media del tiempo que toma en correr este recocido para los valores definidos de $T$ en mil pasos es de $0.475$ segundos.
+Los resultados obtenidos en mil pasos por cada uno de los cien buscadores para cada valor de $T$ se plasmaron en la figura \ref{e2Max} (p. \pageref{e2Max}) donde, nuevamente, conforme aumenta la cantidad de pasos también la estimación es más cercana a la calculada, mostrada por una línea roja punteada. Además, valores poco permisivos mejoran la aproximación al resultado esperado. La media del tiempo que toma en correr este recocido para los valores definidos de $T$ en mil pasos es de $0.475$ segundos.
 
 ![Valor $g(x, y)$ máximo por valor de $T$ en iteraciones de cien, mil y $10000$ pasos. \label{e2Max}](img/e2Max.jpg)
-\
-
-[^38080c50]: http://elisa.dyndns-web.com/teaching/comp/par/p7.html
-
-[^945026fb]: http://www.wolframalpha.com/
 
 # Conclusiones
 1. Una búsqueda local corrida en paralelo requiere tiempos menores para obtener aproximados significativos respecto a los esperados a partir de cálculos más precisos, pero igualmente más costosos en recursos informáticos y tiempo de ejecución.
@@ -137,4 +138,4 @@ Los resultados obtenidos en mil pasos por cada uno de los cien buscadores para c
 
 # Bibliografía
 * WolframAlpha, http://www.wolframalpha.com/, revisado en 25 de septiembre de 2017.
-* Elisa Sheafer, *Práctica 7: búsqueda local*, http://elisa.dyndns-web.com/teaching/comp/par/p7.html, revisado en 25 de septiembre de 2017.
+* Elisa Schaeffer, *Práctica 7: búsqueda local*, http://elisa.dyndns-web.com/teaching/comp/par/p7.html, revisado en 25 de septiembre de 2017.
