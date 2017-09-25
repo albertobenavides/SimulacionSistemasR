@@ -10,6 +10,9 @@ high <- 4
 step <- 0.2
 repetitions <- 100
 debug <- FALSE
+#WolframAlpha
+maxZ = 0.0666822
+maxZ.at <- c(-0.333023, -0.333023)
 
 x <- seq(low, high, step)
 y <- x
@@ -20,89 +23,107 @@ cluster <- makeCluster(detectCores() - 1)
 clusterExport(cluster, "low")
 clusterExport(cluster, "high")
 clusterExport(cluster, "step")
-clusterExport(cluster, "maxTime")
 clusterExport(cluster, "g")
-system.time(
-  results <- parSapply(cluster, 1:repetitions, experiment)
-)[3]
-system.time(
-  results2 <- parSapply(cluster, seq(0.999, 0.9, -0.001), challenge2)
-)[3]
-stopCluster(cluster)
 
-#WolframAlpha
-maxZ = 0.0666822
-maxZ.at <- c(-0.333023, -0.333023)
-
-values <- g(results[1, ], results[2, ])
-
-best <- which.max(values)
-print(
-  paste(
-    "Mejor coordenada: ",
-    "(", results[1, best], ", ", results[2, best], ")",
-    sep = ""
+experimentElapsed <- numeric()
+e1 <- data.frame()
+for (p in 2:2) {
+  maxTime <- 10 ^ p
+  clusterExport(cluster, "maxTime")
+  experimentElapsed <- c(
+    experimentElapsed, system.time(
+      results <- parSapply(cluster, 1:repetitions, experiment)
+    )[3]
   )
-)
-print(
-  paste(
-    "g(x, y) = ", values[best],
-    sep = ""
+  results <- rbind(results,
+    g(results[1, ], results[2, ]), maxTime
   )
-)
-png("BestBoxplot.png")
-boxplot(values, xlab = "Experimento", ylab = "g(x, y)", ylim = c(min(values), maxZ))
-abline(h = maxZ, col = "red", lwd = 3)
-abline(h = values[best], col = "blue", lty = 3, lwd = 2)
+  results <- t(results)
+  e1 <- rbind(e1, results)
+
+  if(debug){
+    png(paste("Experiment", 10^p, ".png", sep = ""))
+    plot.new()
+    print(
+      levelplot(z ~ x * y, data = d,
+        panel = function(...) {
+          panel.levelplot(...)
+          panel.xyplot(results[, 1], results[, 2], pch = 4, col = "black")
+          panel.abline(v = maxZ.at[1], h = maxZ.at[2], col = "red", lty = 3)
+        }
+      )
+    )
+    graphics.off()
+  }
+}
+colnames(e1) <- c("x", "y", "z", "maxTime")
+
+if(debug){
+  png("ExperimentElapsed.png")
+  plot(experimentElapsed, ylab = "Tiempo(s)", xlab = "Repeticiones", xaxt = "n")
+  axis(1, at = 1:4, labels = c("100", "1000", "10^4", "10^5"))
+  lines(experimentElapsed)
+  graphics.off()
+}
+
+options(digits=15)
+tapply(e1$z, e1$maxTime, summary)
+
+e2 <- data.frame()
+e3 <- data.frame()
+e4 <- data.frame()
+for(t in seq(0.995, 0, -0.1)){
+  maxTime <- 1000
+  clusterExport(cluster, "maxTime")
+  clusterExport(cluster, "t")
+  results2 <- parSapply(cluster, 1:repetitions, challenge2)
+  results2 <- t(results2)
+  e2 <- rbind(e2, results2)
+
+  maxTime <- 10000
+  clusterExport(cluster, "maxTime")
+  results3 <- parSapply(cluster, 1:repetitions, challenge2)
+  results3 <- t(results3)
+  e3 <- rbind(e3, results3)
+
+  maxTime <- 100
+  clusterExport(cluster, "maxTime")
+  results4 <- parSapply(cluster, 1:repetitions, challenge2)
+  results4 <- t(results4)
+  e4 <- rbind(e4, results4)
+
+  if(T){
+    png(paste("Experiment2", t, ".png", sep = ""))
+    plot.new()
+    print(
+      levelplot(z ~ x * y, data = d,
+        panel = function(...) {
+          panel.levelplot(...)
+          panel.xyplot(results2[, 1], results2[, 2], pch = 4, col = "black")
+          panel.abline(v = maxZ.at[1], h = maxZ.at[2], col = "red", lty = 3)
+        }
+      )
+    )
+    graphics.off()
+  }
+}
+colnames(e2) <- c("x", "y", "z", "t")
+colnames(e3) <- c("x", "y", "z", "t")
+colnames(e4) <- c("x", "y", "z", "t")
+
+png("Experiment2Max.png", width = 600, height = 300)
+plot(tapply(e2$z, e2$t, max), type = "l", ylab = "g(x, y)", xlab ="T inicial", xaxt = "n", ylim = c(0, maxZ))
+lines(tapply(e3$z, e3$t, max), col = "blue")
+lines(tapply(e4$z, e4$t, max), col = "red")
+axis(1, at = 1:10, labels = seq(0.995, 0, -0.1))
+abline(h = maxZ, col = "red", lty = 3)
+legend("bottom", c("100 pasos", "1000 pasos", "10000 pasos", "max(g(x, y))"), cex=0.8, col=c("red", "black", "blue", "red"), lty= c(1, 1, 1, 3), horiz=TRUE, lwd = 2)
 graphics.off()
 
-values2 <- g(results2[1, ], results2[2, ])
-best2 <- which.max(values2)
-print(
-  paste(
-    "Mejor coordenada Reto 2: ",
-    "(", results2[1, best2], ", ", results2[2, best2], ")",
-    sep = ""
-  )
-)
-print(
-  paste(
-    "g(x, y) = ", values2[best2],
-    sep = ""
-  )
-)
-print(
-  paste(
-    "Mejor t = ", seq(0.999, 0.9, -0.001)[best],
-    sep = ""
-  )
-)
-
-colnames(results2) <- seq(0.999, 0.9, -0.001)
-rownames(results2) <- c("x", "y")
+stopCluster(cluster)
 
 if (debug){
   unlink("img/*.png")
-
-  png("img/experiment.png")
-  levelplot(z ~ x * y, data = d,
-    panel = function(...) {
-      panel.levelplot(...)
-      panel.xyplot(results[1, ], results[2, ], pch = 20, col = "red")
-      panel.xyplot(results[1, best], results[2, best], pch = 15, col = "black")
-    }
-  )
-  graphics.off()
-
-  png("img/experiment2.png")
-  levelplot(z ~ x * y, data = d,
-    panel = function(...) {
-      panel.levelplot(...)
-      panel.xyplot(results2[1, ], results2[2, ], pch = 20, col = "red")
-      panel.xyplot(results2[1, best2], results2[2, best2], pch = 15, col = "black")
-    }
-  )
-  graphics.off()
 
   challenge1()
 

@@ -1,4 +1,5 @@
-challenge2 <- function(t) {
+challenge2 <- function(r) {
+  originalT <- t
   curr <- c(
     runif(1, low, high), runif(1, low, high)
   )
@@ -29,5 +30,5 @@ challenge2 <- function(t) {
       }
     }
   }
-  return(curr)
+  return(c(curr, g(curr[1], curr[2]), originalT))
 }
