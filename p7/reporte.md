@@ -79,13 +79,7 @@ Los tiempos de ejecución del experimento por cantidad de pasos se muestran en l
 
 ![Tiempo que tomó correr el experimento por la cantidad de pasos que se pasaban como parámetro. \label{ExperimentTimes}](img/e1Elapsed.jpg)
 
-Una visualización del recorrido de un buscador puede revisarse como ejemplo en la siguiente dirección: https://goo.gl/9MCJVn. Esta animación representa un buscador que en un máximo de cien pasos podría encontrar el valor máximo de $g(x, y)$ para un rango de $x$ e $y$ de $[-4, 4]$. La modificación más relevante del código respecto al experimento es que se agregó la condición de que si el buscador no actualizaba su posición en ese paso (lo que sucede al encontrar el punto más alto), saldría del ciclo, a saber:
-
-```r
-if(curr[1] == best[1] & curr[2] == best[2]){
-  break
-}
-```
+Una visualización del recorrido de ocho buscadores puede revisarse como ejemplo en la siguiente dirección: https://goo.gl/9MCJVn. Esta animación representa varios buscadores que en un máximo de cien pasos buscan el valor máximo de $g(x, y)$ para un rango de $x$ e $y$ de $[-4, 4]$ con el algoritmo dado.
 
 Para el objetivo 3, la regla de movimiento se modificó de la manera descrita en el reto 2 de la **Práctica 7: búsqueda local**[^38080c50], con la salvedad de que la probabilidad de aceptar a un vecino $x'$ toma $\delta$ en lugar de $-\delta$ para así poder obtener los máximos en lugar de los mínimos locales en $g(x, y). Además, se optó por actualizar $T$ sólo cuando se aceptara un vecino peor respecto a la búsqueda del mayor valor de $g(x, y)$. Los valores para $T$ dados fueron una secuencia de $0.995$ a $0.95$ en pasos de $-0.1$, esto es de más permisivo a menos permisivo. El siguiente código muestra la metodología descrita trasladada al lenguaje R:
 
@@ -130,7 +124,7 @@ challenge2 <- function(r) {
 Los resultados obtenidos en mil pasos por cada uno de los cien buscadores para cada valor de $T$ se plasmaron en la figura \ref{e2Max} (p. \pageref{e2Max}). Aquí, nuevamente, conforme aumenta la cantidad de pasos también la estimación es más cercana a la calculada, mostrada por una línea roja punteada. Además, valores poco permisivos mejoran la aproximación al resultado esperado. La media del tiempo que toma en correr este recocido para los valores definidos de $T$ en mil pasos es de $0.475$ segundos.
 
 ![Valor $g(x, y)$ máximo por valor de $T$ en iteraciones de cien, mil y $10000$ pasos. \label{e2Max}](img/e2Max.jpg)
-\ 
+\
 
 [^38080c50]: http://elisa.dyndns-web.com/teaching/comp/par/p7.html
 

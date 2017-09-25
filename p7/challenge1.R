@@ -11,16 +11,16 @@ challenge1 <- function() {
     bottom <- curr[2] - delta
     top <- curr[2] + delta
     if (left < low){
-      left <- left + high
+      left <- left + high * 2
     }
     if (right > high){
-      right <- right + low
+      right <- right + low * 2
     }
     if (bottom < low){
-      bottom <- bottom + high
+      bottom <- bottom + high * 2
     }
     if (top > high){
-      top <- top + low
+      top <- top + low * 2
     }
     if (g(left, bottom) > g(curr[1], curr[2])) {
       curr <- c(left, bottom)
@@ -34,24 +34,7 @@ challenge1 <- function() {
     if (g(right, bottom) > g(curr[1], curr[2])) {
       curr <- c(right, bottom)
     }
-
-    png(paste("img/", sprintf("%03d", i), ".png", sep = ""))
-    plot.new()
-    print(
-      levelplot(z ~ x * y, data = d,
-        panel = function(...) {
-          panel.levelplot(...)
-          panel.xyplot(curr[1], curr[2], pch = 15, col = "black")
-        }
-      )
-    )
-    title(main = i)
-    graphics.off()
-
-    if(curr[1] == best[1] & curr[2] == best[2]){
-      break
-    } else {
-      best <- curr
-    }
+    todos <- rbind(todos, curr)
   }
+  return(todos)
 }

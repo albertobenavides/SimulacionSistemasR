@@ -27,7 +27,7 @@ clusterExport(cluster, "g")
 
 experimentElapsed <- numeric()
 e1 <- data.frame()
-for (p in 3:3) {
+for (p in 1:1) {
   maxTime <- 10 ^ p
   clusterExport(cluster, "maxTime")
   experimentElapsed <- c(
@@ -69,11 +69,38 @@ if(debug){
   graphics.off()
 }
 
-if (debug){
+if (T){
   unlink("img/*.png")
+  buscador1 <- challenge1()
+  buscador2 <- challenge1()
+  buscador3 <- challenge1()
+  buscador4 <- challenge1()
+  buscador5 <- challenge1()
+  buscador6 <- challenge1()
+  buscador7 <- challenge1()
+  buscador8 <- challenge1()
 
-  challenge1()
-
+  for (i in 1:100) {
+    png(paste("img/", sprintf("%03d", i), ".png", sep = ""))
+    plot.new()
+    print(
+      levelplot(z ~ x * y, data = d,
+        panel = function(...) {
+          panel.levelplot(...)
+          panel.xyplot(buscador1[i, 1], buscador1[i, 2], pch = 1, col = "black")
+          panel.xyplot(buscador2[i, 1], buscador2[i, 2], pch = 2, col = "black")
+          panel.xyplot(buscador3[i, 1], buscador3[i, 2], pch = 2, col = "black")
+          panel.xyplot(buscador4[i, 1], buscador4[i, 2], pch = 3, col = "black")
+          panel.xyplot(buscador5[i, 1], buscador5[i, 2], pch = 4, col = "black")
+          panel.xyplot(buscador6[i, 1], buscador6[i, 2], pch = 5, col = "black")
+          panel.xyplot(buscador7[i, 1], buscador7[i, 2], pch = 6, col = "black")
+          panel.xyplot(buscador8[i, 1], buscador8[i, 2], pch = 7, col = "black")
+        }
+      )
+    )
+    title(main = i)
+    graphics.off()
+  }
   system("magick -delay 20 img/0*.png a.gif")
 }
 
@@ -81,7 +108,7 @@ e2 <- data.frame()
 e3 <- data.frame()
 e4 <- data.frame()
 e2Times <- numeric()
-for(t in seq(0.995, 0, -0.1)){
+for(t in 1:1){
   maxTime <- 1000
   clusterExport(cluster, "maxTime")
   clusterExport(cluster, "t")
@@ -120,14 +147,16 @@ colnames(e2) <- c("x", "y", "z", "t")
 colnames(e3) <- c("x", "y", "z", "t")
 colnames(e4) <- c("x", "y", "z", "t")
 
-png("Experiment2Max.png", width = 600, height = 300)
-plot(tapply(e2$z, e2$t, max), type = "l", ylab = "g(x, y)", xlab ="T inicial", xaxt = "n", ylim = c(min(tapply(e4$z, e4$t, max)), maxZ))
-lines(tapply(e3$z, e3$t, max), col = "blue")
-lines(tapply(e4$z, e4$t, max), col = "red")
-axis(1, at = 1:10, labels = seq(0.995, 0, -0.1))
-abline(h = maxZ, col = "red", lty = 3)
-legend("bottom", c("100 pasos", "1000 pasos", "10000 pasos", "max(g(x, y))"), cex=0.8, col=c("red", "black", "blue", "red"), lty= c(1, 1, 1, 3), horiz=TRUE, lwd = 2)
-graphics.off()
+if(debug){
+  png("Experiment2Max.png", width = 600, height = 300)
+  plot(tapply(e2$z, e2$t, max), type = "l", ylab = "g(x, y)", xlab ="T inicial", xaxt = "n", ylim = c(min(tapply(e4$z, e4$t, max)), maxZ))
+  lines(tapply(e3$z, e3$t, max), col = "blue")
+  lines(tapply(e4$z, e4$t, max), col = "red")
+  axis(1, at = 1:10, labels = seq(0.995, 0, -0.1))
+  abline(h = maxZ, col = "red", lty = 3)
+  legend("bottom", c("100 pasos", "1000 pasos", "10000 pasos", "max(g(x, y))"), cex=0.8, col=c("red", "black", "blue", "red"), lty= c(1, 1, 1, 3), horiz=TRUE, lwd = 2)
+  graphics.off()
+}
 
 summary(e2Times)
 
