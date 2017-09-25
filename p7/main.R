@@ -58,6 +58,9 @@ for (p in 2:2) {
 }
 colnames(e1) <- c("x", "y", "z", "maxTime")
 
+options(digits=15)
+tapply(e1$z, e1$maxTime, summary)
+
 if(debug){
   png("ExperimentElapsed.png")
   plot(experimentElapsed, ylab = "Tiempo(s)", xlab = "Repeticiones", xaxt = "n")
@@ -66,8 +69,13 @@ if(debug){
   graphics.off()
 }
 
-options(digits=15)
-tapply(e1$z, e1$maxTime, summary)
+if (debug){
+  unlink("img/*.png")
+
+  challenge1()
+
+  system("magick -delay 20 img/0*.png a.gif")
+}
 
 e2 <- data.frame()
 e3 <- data.frame()
@@ -92,7 +100,7 @@ for(t in seq(0.995, 0, -0.1)){
   results4 <- t(results4)
   e4 <- rbind(e4, results4)
 
-  if(T){
+  if(debug){
     png(paste("Experiment2", t, ".png", sep = ""))
     plot.new()
     print(
@@ -112,7 +120,7 @@ colnames(e3) <- c("x", "y", "z", "t")
 colnames(e4) <- c("x", "y", "z", "t")
 
 png("Experiment2Max.png", width = 600, height = 300)
-plot(tapply(e2$z, e2$t, max), type = "l", ylab = "g(x, y)", xlab ="T inicial", xaxt = "n", ylim = c(0, maxZ))
+plot(tapply(e2$z, e2$t, max), type = "l", ylab = "g(x, y)", xlab ="T inicial", xaxt = "n", ylim = c(min(tapply(e4$z, e4$t, max)), maxZ))
 lines(tapply(e3$z, e3$t, max), col = "blue")
 lines(tapply(e4$z, e4$t, max), col = "red")
 axis(1, at = 1:10, labels = seq(0.995, 0, -0.1))
@@ -121,11 +129,3 @@ legend("bottom", c("100 pasos", "1000 pasos", "10000 pasos", "max(g(x, y))"), ce
 graphics.off()
 
 stopCluster(cluster)
-
-if (debug){
-  unlink("img/*.png")
-
-  challenge1()
-
-  system("magick -delay 20 img/0*.png a.gif")
-}

@@ -24,7 +24,7 @@ challenge2 <- function(r) {
     if (delta > 0){
       curr <- other
     } else if(delta < 0){
-      if(runif(1) < exp(-delta / t)){
+      if(runif(1) < exp(delta / t)){
         curr <- other
         t <- t * t
       }
