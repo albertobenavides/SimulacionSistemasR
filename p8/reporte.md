@@ -12,11 +12,9 @@ date: "2 de octubre de 2017"
 # Simulación y resultados
 Los experimentos que se simularon en esta práctica se corrieron en una computadora portátil con sistema operativo Windows 10 Home Single Language, procesador Intel(R) Core(TM) i7-7500U CPU @ $2.70$ GHz, $2904$ MHz de dos núcleos principales y cuatro lógicos.
 
-En este experimento se parte de una cantidad $k$ de cúmulos que pueden contener $n$ elementos. Estos cúmulos serán susceptibles de separación y unión durante cincuenta iteraciones con probabilidades sigmoidal y exponencial basadas en sus medias como puntos críticos. Una representación visual de los cúmulos como círculos de radio igual al tamaño de su partícula puede consultarse en la figura \ref{space} (p. \pageref{space}) donde se grafican los cúmulos en posiciones aleatorias en un eje cartesiano. Además, el desarrollo de separación y unión de cúmulos como barras de frecuencia puede consultarse en la dirección
+En este experimento se parte de una cantidad $k$ de cúmulos que pueden contener $n$ elementos en total. Estos cúmulos serán susceptibles de separación y unión durante cincuenta iteraciones con probabilidades sigmoidal y exponencial respectivamente, basadas en sus medianas como puntos críticos. Una representación visual de los cúmulos como círculos de radio igual al tamaño de sus partículas puede consultarse en la figura \ref{space} (p. \pageref{space}) donde se grafican los cúmulos en posiciones aleatorias en un eje cartesiano. Adicionalmente, el desarrollo de separación y unión de cúmulos como barras de frecuencia puede consultarse en https://goo.gl/B2TAAR.
 
 ![Representación en posiciones aleatorias de los cúmulos como círculos de radio igual al tamaño de partículas con que están constituidos. \label{space}](space.png)
-
-
 
 Del código compartido por @shaeffer se paralelizaron las funciones `romperse`, `unirse` y una función sin nombre que une las urnas que están listas para hacerlo después de pasar por la función `unirse`. Esta paralelización se llevó a cabo por la función `parSapply` incluida en la librería `parallel` del lenguaje R. Las dos primeras funciones se corrieron para cada una de las filas de las tablas de frecuencias donde se agruparon las urnas por tamaños.
 
@@ -41,11 +39,11 @@ cumulosUnidos <- parSapply(cluster, 1:floor(nt / 2),
 )
 ```
 
-Todo el código de la práctica, con los cambios mencionados, se encapsuló en una función denominada `experiment`, ésta se corrió de uno a cuatro núcleos con una duración de cincuenta pasos para medir las diferencias de tiempo de ejecución con base en el uso de núcleos. La imagen \ref{Times_Cores} (p. \pageref{Times_Cores}) muestra los resultados descritos y que el menor tiempo de ejecución corresponde con el uso de dos núcleos.
+Todo el código de la práctica, con los cambios mencionados, se encapsuló en una función que se corrió de uno a cuatro núcleos para medir las diferencias de tiempo de ejecución con base en el uso de núcleos. La imagen \ref{Times_Cores} (p. \pageref{Times_Cores}) muestra los resultados descritos y que el menor tiempo de ejecución corresponde con el uso de dos núcleos.
 
 ![Tiempo en segundos que tomó correr este experimento con los núcleos disponibles en el equipo descrito. \label{Times_Cores}](Times_Cores.png)
 
-Posteriormente se iteraron, dado $p = [3, 6]$, la cantidad de cúmulos, $k = 10^p$, y el total de partículas, $n = 3k$. Con estas nuevas condiciones se corrió el experimento para uno y dos núcleos puesto que dos núcleos fue el número de núcleos que logró el tiempo óptimo mínimo para el experimento, y un núcleo corresponde a corridas no paralelizadas. Los tiempos, en segundos, por $k$ inicial se graficaron en escala logarítmica en la figura \ref{Paralelizar} (p. \pageref(Paralelizar)).
+Posteriormente se iteraron, dado $p = [3, 6]$, la cantidad de cúmulos, $k = 10^p$, y el total de partículas, $n = 3k$. Con estas nuevas condiciones se corrió el experimento para uno y dos núcleos puesto que dos núcleos fue el número de núcleos que logró el tiempo óptimo mínimo para el experimento, y un núcleo corresponde a corridas no paralelizadas. Los tiempos en segundos por número de cúmulos inicial se graficaron en escala logarítmica en la figura \ref{Paralelizar} (p. \pageref{Paralelizar}).
 
 ![Comparación de tiempos con k iniciales medidos en escala logarítmica para uno (no paralelizado) y dos (paralelizado) núcleos. \label{Paralelizar}](Paralelizar.png)
 
@@ -53,6 +51,6 @@ Al obtener la matriz de coeficientes de correlación se tiene una $r_1 = -0.028$
 
 # Conclusiones
 1. Paralelizar reduce el tiempo de ejecución de funciones susceptibles de paralelización, pero el tiempo mínimo se logra al utilizar sólo los núcleos físicos disponibles con respecto al uso de núcleos lógicos.
-2. Se puede que como $r_1$ es muy cercano a cero, existe un ahorro mínimo de tiempo conforme crece el número de núcleos al variar el número de cúmulos inicial, el cual es estadísticamente no significativo.
+2. Se puede decir que como $r_1$ es negativo y muy cercano a cero, existe un ahorro mínimo de tiempo conforme crece el número de núcleos al variar el número de cúmulos inicial, sin embargo este ahorro no es estadísticamente  significativo.
 
 # Referencias
