@@ -2,7 +2,7 @@ library(ggtern)
 library(parallel)
 cluster <- makeCluster(2)
 
-debug <- F
+debug <- T
 challenge2 <- F
 n <- 100
 tmax <- 100
@@ -78,27 +78,30 @@ for (iter in 1:tmax) {
   clusterExport(cluster, "f")
   delta <- 0.02 / max(abs(f))
   clusterExport(cluster, "delta")
-  tx <- p$x
-  ty <- p$y
-  p$x <- parSapply(cluster, 1:n, function(i){
-    max(
-      min(
-        p[i,]$x + delta * f[c(TRUE, FALSE)][i] / p[i,]$m, 1
-      ), 0
-    )
-  })
-  p$y <- parSapply(cluster, 1:n, function(i){
-    max(
-      min(
-        p[i,]$y + delta * f[c(FALSE, TRUE)][i] / p[i,]$m, 1
-      ), 0
-    )
-  })
-
-  p$vx <- (p$vx + abs(p$x - tx))
-  p$vy <- (p$vy + abs(p$y - ty))
+  vx <- delta * f[c(TRUE, FALSE)] / p$m
+  vy <- delta * f[c(FALSE, TRUE)] / p$m
+  p$vx <- (p$vx + abs(vx))
+  p$vy <- (p$vy + abs(vy))
   clusterExport(cluster, "p")
-  p$x <- parSapply(cluster, 1:n, function(i) {
+  clusterExport(cluster, "vx")
+  clusterExport(cluster, "vy")
+  pxy <- parSapply(cluster, 1:n, function(i){
+    x <- max(
+      min(
+        p[i,]$x + vx[i], 1
+      ), 0
+    )
+    y <- max(
+      min(
+        p[i,]$y + vy[i], 1
+      ), 0
+    )
+    return(c(x, y))
+  })
+  p[, 1:2] <- t(pxy)
+
+  clusterExport(cluster, "p")
+  pxy <- parSapply(cluster, 1:n, function(i) {
     xi <- p[i,]$x
     yi <- p[i,]$y
     mi <- p[i,]$m
@@ -113,30 +116,14 @@ for (iter in 1:tmax) {
       d <- sqrt(dx^2 + dy^2)
       if(d < r){
         xi <- xi + dx * runif(1, mj / 2, mj) / mi
-      }
-    }
-    return(max(min(xi, 1), 0))
-  })
-  clusterExport(cluster, "p")
-  p$y <- parSapply(cluster, 1:n, function(i) {
-    xi <- p[i,]$x
-    yi <- p[i,]$y
-    mi <- p[i,]$m
-    for (j in i:n) {
-      if(j == i){
-        return
-      }
-      mj <- p[j,]$m
-      r <- (mi + mj) / 200
-      dx <- xi - p[j,]$x
-      dy <- yi - p[j,]$y
-      d <- sqrt(dx^2 + dy^2)
-      if(d < r){
+        xi <- max(min(xi, 1), 0)
         yi <- yi + dy * runif(1, mj / 2, mj) / mi
+        yi <- max(min(yi, 1), 0)
       }
     }
-    return(max(min(yi, 1), 0))
+    return(c(xi, yi))
   })
+  p[, 1:2] <- t(pxy)
 
   if(debug){
     tl <- paste(iter, "", sep="")
@@ -169,19 +156,19 @@ a <- seq(0, max(p$v), max(p$v)/5)
 a <- sprintf("%.4f",a)
 png("Velocity.png")
 print(
-  ggtern(data=p,aes(m / 5, v / max(p$v), (c + 1) / 2)) +
+  ggtern(data=p,aes(m / 5, v / max(p$v), abs(c))) +
   geom_mask() +
   geom_point(aes(colour=m)) +
   scale_color_gradient(low='green',high='red') +
-  labs(x="Masa",y="Velocidad",z="Carga", color = "Masa") +
+  labs(x="Masa",y="Velocidad promedio",z="abs(Carga)", color = "Masa") +
   scale_T_continuous(labels = a) +
   scale_L_continuous(labels = seq(0, 5, 1)) +
-  scale_R_continuous(breaks = seq(0, 1, 0.1), labels = seq(-1, 1, 0.2))
+  scale_R_continuous(breaks = seq(0, 1, 0.1), labels = seq(0, 1, 0.1))
 )
 graphics.off()
 
 png("Boxplot.png")
-boxplot(p$v~round(p$m), xlab = "Masa", ylab = "Velocidad")
+boxplot(p$v~round(p$m), xlab = "Masa", ylab = "Velocidad promedio")
 graphics.off()
 
 stopCluster(cluster)
@@ -190,4 +177,3 @@ if(debug){
 }
 
 alarm()
-warnings()
