@@ -75,10 +75,10 @@ p$x <- parSapply(cluster, 1:n, function(i) {
 })
 ```
 
-De esta manera se logró detectar colisiones entre partículas y sus circunferencias, denotadas por su masa, y dotar al sistema de una dinámina no determinista de repulsión. La animación hallada en url muestra cómo se desarrollaron estos movimientos. En ella puede observarse que las partículas más grandes se mueven más despacio y repelen con más fuerza a las partículas pequeñas, mas con el fin de evidenciar este decremento en la velocidad que sufrieron las partículas dada su masa, se calculó para cada partícula su rapidez promedio a lo largo de las cien iteraciones de la simulación, esto como resultado de la sumatoria de las diferencias, en cada iteración y para cada eje, de la posición final menos la inicial de cada partícula, las cuales fueron divididas entre el número de pasos para luego calcular la magnitud, no olvidar que se trata de la rapidez promedio, del vector resultante mediante teorema de Pitágoras. El cálculo de la rapidez promedio se paralelizó con la función citada.
+De esta manera se logró detectar colisiones entre partículas y sus circunferencias, denotadas por su masa, y dotar al sistema de una dinámina no determinista de repulsión. La animación hallada en https://goo.gl/MSkSMo muestra cómo se desarrollaron estos movimientos. En ella puede observarse que las partículas más grandes se mueven más despacio y repelen con más fuerza a las partículas pequeñas, mas con el fin de evidenciar este decremento en la velocidad que sufrieron las partículas dada su masa, se calculó para cada partícula su rapidez promedio a lo largo de las cien iteraciones de la simulación, esto como resultado de la sumatoria de las diferencias, en cada iteración y para cada eje, de la posición final menos la inicial de cada partícula, las cuales fueron divididas entre el número de pasos para luego calcular la magnitud, no olvidar que se trata de la rapidez promedio, del vector resultante mediante teorema de Pitágoras. El cálculo de la rapidez promedio también se paralelizó con la función ya citada.
 
 ```r
-for (i in 1:100) {
+for (i in 1:100) { # durante 100 iteraciones
   [...]
   # posiciones iniciales en cada paso
   tx <- p$x
@@ -88,6 +88,7 @@ for (i in 1:100) {
   # (velocidades) antes de las colisiones
   p$vx <- (p$vx + abs(p$x - tx))
   p$vy <- (p$vy + abs(p$y - ty))
+  [...]
 }
 # media de velocidad
 p$vx <- p$vx / 100
@@ -98,7 +99,10 @@ p$v <- parSapply(cluster, 1:n, function(i){
 })
 ```
 
-Se graficaron estos resultados junto a la masa y la carga de las partículas en un diagrama ternario en el que se resalta con un gradiente de color la masa de las partículas. Este diagrama puede consultarse en la figura \ref{Velocity} (p. \pageref{Velocity}) y constatar, a manera de conclusión, que las partículas de masa mayor tienen una rapidez menor, misma que se incrementa al disminuir la masa. A esto se suma el hecho de que la velocidad de movimiento de las partículas es directamente proporcional al valor absoluto de la carga. Estos resultados corresponden con las ecuaciones utilizadas y las relaciones de directa e inversamente proporcional con las que se utilizaron la carga y la masa de las partículas, respectivamente.
+Se graficaron estos resultados, primero, en un diagrama de caja y bigotes en la figura \ref{Boxplot} (p. \pageref{Boxplot}) en donde se puede apreciar que la velocidad disminuye al aumentar la masa; en segundo lugar se plasmó la velocidad promedio junto a la masa y la carga de las partículas en un diagrama ternario en el que se resalta con un gradiente de color la masa de las partículas. Este diagrama puede consultarse en la figura \ref{Velocity} (p. \pageref{Velocity}) y constatar, a manera de conclusión, que las partículas de masa mayor tienen una rapidez menor, misma que se incrementa al disminuir la masa. A esto se suma el hecho de que la velocidad de movimiento de las partículas es directamente proporcional al valor absoluto de la carga. Estos resultados corresponden con las ecuaciones utilizadas y las relaciones directa e inversamente proporcional con las que se utilizaron la carga y la masa de las partículas, respectivamente.
+
+![Diagrama de caja y bigotes de las partículas agrupadas por masa por redondeo donde se muestran las medidas de posición evaluadas por la velocidad promedio. \label{Boxplot}](Boxplot.png)
+
 ![Diagrama ternario de masa, velocidad y carga de las partículas, en el que se resalta la importancia de la masa respecto a la rapidez promedio de las mismas.\label{Velocity}](Velocity.png)
 
 # Bibliografía
