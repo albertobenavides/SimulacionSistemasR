@@ -1,0 +1,15 @@
+times = read.table("myfile.txt", header = T)
+print(times)
+regresion <- lm(tiempo ~ tipo, data = times)
+summary(regresion)
+
+png("Times.png")
+boxplot(times$tiempo~times$tipo, xlab = "Tipo de corrida", ylab = "Tiempo (s)", xaxt = "n")
+axis(1, at=1:2, lab = c("No paralela", "Paralela"))
+graphics.off()
+
+png("RL.png")
+plot(times$tipo, times$tiempo, xlab = "Tipo de corrida", ylab = "Tiempo (s)", xaxt = "n")
+axis(1, at=0:1, lab = c("No paralela", "Paralela"))
+abline(regresion)
+graphics.off()

@@ -2,12 +2,12 @@
 title: "Interacciones entre partículas"
 author: "Alberto Benavides"
 bibliography: bib.bib
-date: "2 de octubre de 2017"
+date: "9 de octubre de 2017"
 ---
 
 # Introducción
 
-En la Práctica 9 compartida por Shaeffer [-@shaeffer] se detallan las instrucciones y códigos para simular una interacción entre partículas con carga en un espacio bidimensional. Estas partículas siguen leyes de atracción similares a las expresadas por la ley de Coulomb, moviéndose en una dirección que depende de la interacción de cargas presentes en el sistema y con una fuerza directamente proporcional a la diferencia de cargas e inversamente proporcional a la distancia euclidiana que las separa.
+En la Práctica 9 compartida por Schaeffer [-@shaeffer] se detallan las instrucciones y códigos para simular una interacción entre partículas con carga en un espacio bidimensional. Estas partículas siguen leyes de atracción similares a las expresadas por la ley de Coulomb, moviéndose en una dirección que depende de la interacción de cargas presentes en el sistema y con una fuerza directamente proporcional a la diferencia de cargas e inversamente proporcional a la distancia euclidiana que las separa.
 
 # Objetivos
 1. Agregar a cada partícula una masa y que la masa afecte a la velocidad de movimiento. Estudiar la distribución de velocidades de las partículas y verifica gráficamente que esté presente una relación entre la velocidad y la masa de las partículas.
