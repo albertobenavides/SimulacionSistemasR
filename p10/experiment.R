@@ -1,5 +1,4 @@
 library(testit)
-sink("myfile.txt", append=FALSE, split=FALSE)
 knapsack <- function(cap, peso, valor) {
   n <- length(peso)
   pt <- sum(peso) # deben ser enteros en este caso
@@ -106,11 +105,16 @@ init <- 200
 
 library(parallel)
 parallel = T
+pRep = 2
 cluster <- makeCluster(detectCores(logical=FALSE))
 times <- data.frame()
+p <- poblacion.inicial(n, init)
+pInit <- p
 
-for(r in 1:20){
-  p <- poblacion.inicial(n, init)
+for(r in 1:pRep){
+  if(pRep == 2){
+    p <- pInit
+  }
   tam <- dim(p)[1]
   assert(tam == init)
   pm <- 0.05
@@ -147,8 +151,22 @@ for(r in 1:20){
         clusterExport(cluster, "p")
         clusterExport(cluster, "tam")
         clusterExport(cluster, "reproduccion")
+        clusterExport(cluster, "optimo")
+        clusterExport(cluster, "objetivo")
+        clusterExport(cluster, "valores")
+        clusterExport(cluster, "capacidad")
+        pObj <- double()
+        if(pRep == 2 & r == 2){
+          for (i in 1:tam) {
+            pObj <- c(pObj, objetivo(unlist(p[i,]), valores) / optimo)
+          }
+        } else{
+          pObj <- rep(1, tam)
+        }
+
+        clusterExport(cluster, "pObj")
         a <- parSapply(cluster, 1:rep, function(i){
-          padres <- sample(1:tam, 2, replace=FALSE)
+          padres <- sample(1:tam, 2, replace=FALSE, prob = pObj)
           hijos <- reproduccion(p[padres[1],], p[padres[2],], n)
           hijo1 <- hijos[1:n] # primer hijo
           hijo2 <- hijos[(n+1):(2*n)] # segundo hijo
@@ -209,20 +227,32 @@ for(r in 1:20){
     }
   )[3]
   times <- rbind(times, c(r%%2, t))
-  parallel <- !parallel
+  if(pRep == 2){
+    sink(paste("challenge", r, ".txt", sep = ""), append=FALSE, split=FALSE)
+    png(paste("p10ch", r, ".png", sep = ""), width=600, height=300)
+    plot(1:tmax, mejores, xlab="Paso", ylab="Mayor valor", type='l', ylim=c(0.95*min(mejores), 1.05*optimo))
+    points(1:tmax, mejores, pch=15)
+    abline(h=optimo, col="green", lwd=3)
+    graphics.off()
+    print(mejores)
+    parallel <- !parallel
+  }
 }
-colnames(times) <- c("tipo", "tiempo")
-print(times)
-
-png("Times.png", width = 300, height = 600)
-boxplot(times$tiempo~times$tipo, xlab = "Tipo de corrida", ylab = "Tiempo (s)", xaxt = "n")
-axis(1, lab = c("No paralela", "Paralela"))
-graphics.off()
 
 stopCluster(cluster)
-png("p10.png", width=600, height=300)
-plot(1:tmax, mejores, xlab="Paso", ylab="Mayor valor", type='l', ylim=c(0.95*min(mejores), 1.05*optimo))
-points(1:tmax, mejores, pch=15)
-abline(h=optimo, col="green", lwd=3)
-graphics.off()
-print(t)
+if(pRep > 2){
+  sink("experiment.txt", append=FALSE, split=FALSE)
+  colnames(times) <- c("tipo", "tiempo")
+  png("Times.png", width = 300, height = 600)
+  boxplot(times$tiempo~times$tipo, xlab = "Tipo de corrida", ylab = "Tiempo (s)", xaxt = "n")
+  axis(1, at = 0:1, lab = c("No paralela", "Paralela"))
+  graphics.off()
+  sink("myfile.txt", append=FALSE, split=FALSE)
+  print(times)
+  png("p10.png", width=600, height=300)
+  plot(1:tmax, mejores, xlab="Paso", ylab="Mayor valor", type='l', ylim=c(0.95*min(mejores), 1.05*optimo))
+  points(1:tmax, mejores, pch=15)
+  abline(h=optimo, col="green", lwd=3)
+  graphics.off()
+  print(mejores)
+}
