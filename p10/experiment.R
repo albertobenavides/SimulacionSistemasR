@@ -118,95 +118,95 @@ for(r in 1:20){
   tmax <- 50
   mejores <- double()
   t <- system.time(
-  for (iter in 1:tmax) {
-    p$obj <- NULL
-    p$fact <- NULL
-    if(parallel){
-      clusterExport(cluster, "pm")
-      clusterExport(cluster, "mutacion")
-      clusterExport(cluster, "n")
-      clusterExport(cluster, "p")
-      a <- parSapply(cluster, 1:tam, function(i){
-        if (runif(1) < pm) {
-          mutacion(p[i,], n)
-        }
-      })
-      a <- Filter(Negate(is.null), a)
-      a <- data.frame(matrix(unlist(a), nrow=50, byrow=T))
-      a <- t(a)
-      p <- rbind(p, a)
-    }else{
-      for (i in 1:tam) {
-        if (runif(1) < pm) {
-          p <- rbind(p, mutacion(p[i,], n))
+    for (iter in 1:tmax) {
+      p$obj <- NULL
+      p$fact <- NULL
+      if(parallel){
+        clusterExport(cluster, "pm")
+        clusterExport(cluster, "mutacion")
+        clusterExport(cluster, "n")
+        clusterExport(cluster, "p")
+        a <- parSapply(cluster, 1:tam, function(i){
+          if (runif(1) < pm) {
+            mutacion(p[i,], n)
+          }
+        })
+        a <- Filter(Negate(is.null), a)
+        a <- data.frame(matrix(unlist(a), nrow=50, byrow=T))
+        a <- t(a)
+        p <- rbind(p, a)
+      }else{
+        for (i in 1:tam) {
+          if (runif(1) < pm) {
+            p <- rbind(p, mutacion(p[i,], n))
+          }
         }
       }
-    }
 
-    if(parallel){
-      clusterExport(cluster, "p")
-      clusterExport(cluster, "tam")
-      clusterExport(cluster, "reproduccion")
-      a <- parSapply(cluster, 1:rep, function(i){
-        padres <- sample(1:tam, 2, replace=FALSE)
-        hijos <- reproduccion(p[padres[1],], p[padres[2],], n)
-        hijo1 <- hijos[1:n] # primer hijo
-        hijo2 <- hijos[(n+1):(2*n)] # segundo hijo
-        return(rbind(hijo1, hijo2))
-      })
-      a <- data.frame(matrix(unlist(a), nrow=50, byrow=T))
-      a <- t(a)
-      p <- rbind(p, a)
-      rownames(p) <- 1:nrow(p)
-    } else{
-      for (i in 1:rep) { # una cantidad fija de reproducciones
-        padres <- sample(1:tam, 2, replace=FALSE)
-        hijos <- reproduccion(p[padres[1],], p[padres[2],], n)
-        p <- rbind(p, hijos[1:n]) # primer hijo
-        p <- rbind(p, hijos[(n+1):(2*n)]) # segundo hijo
+      if(parallel){
+        clusterExport(cluster, "p")
+        clusterExport(cluster, "tam")
+        clusterExport(cluster, "reproduccion")
+        a <- parSapply(cluster, 1:rep, function(i){
+          padres <- sample(1:tam, 2, replace=FALSE)
+          hijos <- reproduccion(p[padres[1],], p[padres[2],], n)
+          hijo1 <- hijos[1:n] # primer hijo
+          hijo2 <- hijos[(n+1):(2*n)] # segundo hijo
+          return(rbind(hijo1, hijo2))
+        })
+        a <- data.frame(matrix(unlist(a), nrow=50, byrow=T))
+        a <- t(a)
+        p <- rbind(p, a)
+        rownames(p) <- 1:nrow(p)
+      } else{
+        for (i in 1:rep) { # una cantidad fija de reproducciones
+          padres <- sample(1:tam, 2, replace=FALSE)
+          hijos <- reproduccion(p[padres[1],], p[padres[2],], n)
+          p <- rbind(p, hijos[1:n]) # primer hijo
+          p <- rbind(p, hijos[(n+1):(2*n)]) # segundo hijo
+        }
       }
-    }
-    tam <- nrow(p)
-    obj <- double()
-    fact <- integer()
-    if(parallel){
-      clusterExport(cluster, "p")
-      clusterExport(cluster, "obj")
-      clusterExport(cluster, "fact")
-      clusterExport(cluster, "objetivo")
-      clusterExport(cluster, "valores")
-      clusterExport(cluster, "factible")
-      clusterExport(cluster, "pesos")
-      clusterExport(cluster, "capacidad")
-      a <- parSapply(cluster, 1:tam, function(i){
-        obj <- c(obj, objetivo(unlist(p[i,]), valores))
-        fact <- c(fact, factible(unlist(p[i,]), pesos, capacidad))
-        return(cbind(fact, obj))
-      })
-      a <- t(a)
-      colnames(a) <- c("fact", "obj")
-      p <- cbind(p, a)
-    }else{
-      for (i in 1:tam) {
-        obj <- c(obj, objetivo(unlist(p[i,]), valores))
-        fact <- c(fact, factible(unlist(p[i,]), pesos, capacidad))
+      tam <- nrow(p)
+      obj <- double()
+      fact <- integer()
+      if(parallel){
+        clusterExport(cluster, "p")
+        clusterExport(cluster, "obj")
+        clusterExport(cluster, "fact")
+        clusterExport(cluster, "objetivo")
+        clusterExport(cluster, "valores")
+        clusterExport(cluster, "factible")
+        clusterExport(cluster, "pesos")
+        clusterExport(cluster, "capacidad")
+        a <- parSapply(cluster, 1:tam, function(i){
+          obj <- c(obj, objetivo(unlist(p[i,]), valores))
+          fact <- c(fact, factible(unlist(p[i,]), pesos, capacidad))
+          return(cbind(fact, obj))
+        })
+        a <- t(a)
+        colnames(a) <- c("fact", "obj")
+        p <- cbind(p, a)
+      }else{
+        for (i in 1:tam) {
+          obj <- c(obj, objetivo(unlist(p[i,]), valores))
+          fact <- c(fact, factible(unlist(p[i,]), pesos, capacidad))
+        }
+        p <- cbind(p, obj)
+        p <- cbind(p, fact)
       }
-      p <- cbind(p, obj)
-      p <- cbind(p, fact)
+      p <- transform(
+        p, fact = as.integer(fact),
+        obj = as.double(obj)
+      )
+      mantener <- order(-p$fact, -p$obj)[1:init]
+      p <- p[mantener,]
+      rownames(p) <- 1: nrow(p)
+      tam <- nrow(p)
+      assert(tam == init)
+      factibles <- p[p$fact == TRUE,]
+      mejor <- max(factibles$obj)
+      mejores <- c(mejores, mejor)
     }
-    p <- transform(
-      p, fact = as.integer(fact),
-      obj = as.double(obj)
-    )
-    mantener <- order(-p$fact, -p$obj)[1:init]
-    p <- p[mantener,]
-    rownames(p) <- 1: nrow(p)
-    tam <- nrow(p)
-    assert(tam == init)
-    factibles <- p[p$fact == TRUE,]
-    mejor <- max(factibles$obj)
-    mejores <- c(mejores, mejor)
-  }
   )[3]
   times <- rbind(times, c(r%%2, t))
   parallel <- !parallel
