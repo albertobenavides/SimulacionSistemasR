@@ -112,11 +112,11 @@ neural <- function(t){
   return(r == correcto)
 }
 if(parallel){
-  a <- parSapply(cluster, 1:10000, neural)
+  a <- parSapply(cluster, 1:1000, neural)
   print(sum(a))
 } else{
   a <- 0
-  for (t in 1:10000) { # prueba
+  for (t in 1:1000) { # prueba
     d <- sample(0:tope, 1)
     pixeles <- runif(dim) < modelos[d + 1,] # fila 1 contiene el cero, etc.
     correcto <- binario(d, n)

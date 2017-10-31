@@ -11,6 +11,4 @@ boxplot(seq[, 2] / 10000, par[, 2] / 10000, xlab = "Tipo de corrida", ylab = "Po
 axis(1, at=c(1, 2), labels = c("Secuencial", "Paralelo"))
 graphics.off()
 
-wilcox.test(seq[,1], conf.int = TRUE)
-wilcox.test(par[,1], conf.int = TRUE)
-wilcox.test(c(seq[,1], par[,1]), conf.int = TRUE)
+wilcox.test(seq[,1], par[,1], mu = 3.6, conf.int = TRUE)

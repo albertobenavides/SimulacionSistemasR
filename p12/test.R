@@ -1,6 +1,6 @@
 times <- data.frame()
 
-parallel <- F
+parallel <- T
 debug <- F
 commandArgs <- function() c(parallel, debug)
 
