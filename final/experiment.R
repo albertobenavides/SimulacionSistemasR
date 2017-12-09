@@ -65,6 +65,7 @@ experiment <- function(duracion){
   names(freq) <- c("tam", "num")
   freq$tam <- as.numeric(levels(freq$tam))[freq$tam]
   digitos <- floor(log(duracion, 10)) + 1
+
   for (paso in 1:duracion) {
 
     cumulos <- parSapply(cluster, 1:nrow(freq), romperse)
@@ -96,7 +97,7 @@ experiment <- function(duracion){
     freq <- as.data.frame(table(cumulos))
     names(freq) <- c("tam", "num")
     freq$tam <- as.numeric(levels(freq$tam))[freq$tam]
-    val <- c(val, freq[freq$tam == 50,2])
+    val <- c(val, sum(freq[freq$tam >= 50,2]))
     if(debug){
       png(
         paste(
@@ -108,7 +109,8 @@ experiment <- function(duracion){
       tope <- 50 * ceiling(max(cumulos) / 50)
       hist(cumulos, breaks=seq(0, tope, 10),
       main=paste("Paso", paso, "con ambos fen\u{00f3}menos"), freq=T,
-      ylim=c(0, 550), xlab="Tama\u{00f1}o", ylab="Frecuencia relativa", xlim = c(0, 100))
+      ylim=c(0, 450), xlab="Tama\u{00f1}o", ylab="Frecuencia relativa", xlim = c(0, 100))
+      abline(v = 50, col=2)
       graphics.off()
     }
   }

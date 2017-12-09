@@ -26,13 +26,13 @@ if(paralelizar){
 
   c <- detectCores(logic = F)
   cluster <- makeCluster(c)
-  for (dTemp in seq(0.1, 0.9, 0.05)) {
+  for (dTemp in seq(0.1, 0.9, 0.1)) {
     unlink("img/p8*.png")
     d <- dTemp
     clusterExport(cluster, "d")
-    val <- experiment(10)
+    val <- experiment(100)
 
-    png(paste("plot", d, ".png", sep = ""))
+    png(paste("plot", d, ".png", sep = ""), width = 800, height = 480)
     plot(val, type = "l")
     graphics.off()
     #alarm()
