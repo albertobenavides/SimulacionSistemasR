@@ -58,7 +58,7 @@ experiment <- function(duracion){
 
   cumulos <- crearCumulos()
 
-  c <- median(cumulos)
+  c <- median(cumulos) * cTemp
   val <- numeric()
 
   freq <- as.data.frame(table(cumulos))
